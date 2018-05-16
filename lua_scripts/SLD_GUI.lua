@@ -3,6 +3,8 @@ local SLD_LIB = SLD_LIB or require("SLD_LIB")
 local SLD_Events = SLD_Events or require("SLD_Events")
 local SLD_Frames = SLD_Frames or require("SLD_Frames")
 local SLD_Frames2 = SLD_Frames2 or require("SLD_Frames2")
+local SLD_Frames3 = SLD_Frames3 or require("SLD_Frames3")
+local SLD_Macros = SLD_Macros or require("SLD_Macros")
 
 local HandleLDMsg
 
@@ -30,6 +32,9 @@ if AIO.AddAddon() then
 		 
       elseif LD_Head == "PRDEB" then  -- IMPRIME UN TEXTO EN EL LOG DEL SERVER
          PrintInfo("[DEBUG]:" .. msg )
+		 
+      elseif LD_Head == "LDPMF" then  -- RECARGA DE MIEMBROS DE LA RAID
+		 LD_CheckPjGroup(player)
 		 
       elseif LD_Head == "HELLO" then -- PERSONAJE ENTRA AL MUNDO
 		 LD_SavePjPlayer ( LD_Table[2], player:GetAccountName() )
@@ -119,6 +124,10 @@ if AIO.AddAddon() then
 		 end		 
          AIO.Msg():Add("LDMsg", "HISPJ#" .. MyLD_Pj.. "#SHOW#SHOW"):Send(player)
 		 
+	  elseif LD_Head == "HIDPJ" then -- CAST SPELL
+	     local MySpellID = LD_Table[2]
+		 player:CastSpell(nil,tonumber(MySpellID),true)
+		 
 	  elseif LD_Head == "APPHI" then -- APROBAR HISTORIA
 		 PrintInfo("[INFO]HandleLDMsg: :[APPHI]" .. msg )
 	     if player:IsGM() == false then
@@ -163,12 +172,45 @@ else
    BR_p, BR_f, BR_r, BR_x, BR_y = MultiBarBottomRight:GetPoint()
    ML_p, ML_f, ML_r, ML_x, ML_y = MultiBarLeft:GetPoint()
    MR_p, MR_f, MR_r, MR_x, MR_y = MultiBarRight:GetPoint()
+   PM1_p, PM1_f, PM1_r, PM1_x, PM1_y = PartyMemberFrame1:GetPoint()
+   PM2_p, PM2_f, PM2_r, PM2_x, PM2_y = PartyMemberFrame2:GetPoint()
+   PM3_p, PM3_f, PM3_r, PM3_x, PM3_y = PartyMemberFrame3:GetPoint()
+   PM4_p, PM4_f, PM4_r, PM4_x, PM4_y = PartyMemberFrame4:GetPoint()
+   CLK_p, CLK_f, CLK_r, CLK_x, CLK_y = TimeManagerClockButton:GetPoint()
    
    BL_Visible = MultiBarBottomLeft:IsVisible()
    BR_Visible = MultiBarBottomRight:IsVisible()
    ML_Visible = MultiBarLeft:IsVisible()
    MR_Visible = MultiBarRight:IsVisible()
 
+   PartyMemberFrame1:SetParent(LD_DummyFrame)
+   PartyMemberFrame1:SetPoint(PM1_p, 
+		                      LD_DummyFrame,
+							  PM1_r,
+							  3000, 
+							  3000)
+   PartyMemberFrame2:SetParent(LD_DummyFrame)
+   PartyMemberFrame2:SetPoint(PM1_p, 
+		                      LD_DummyFrame,
+							  PM1_r,
+							  3000, 
+							  3000)
+   PartyMemberFrame3:SetParent(LD_DummyFrame)
+   PartyMemberFrame3:SetPoint(PM1_p, 
+		                      LD_DummyFrame,
+							  PM1_r,
+							  3000, 
+							  3000)
+   PartyMemberFrame4:SetParent(LD_DummyFrame)
+   PartyMemberFrame4:SetPoint(PM1_p, 
+		                      LD_DummyFrame,
+							  PM1_r,
+							  3000, 
+							  3000)
+   PartyMemberFrame1:Hide()
+   PartyMemberFrame2:Hide()
+   PartyMemberFrame3:Hide()
+   PartyMemberFrame4:Hide()
    
    if AIO_LD_CONFIG == nil then
       AIO_LD_CONFIG = {}
@@ -190,13 +232,37 @@ else
       end
 	  local LD_Head, LD_Pj, LD_Body = strsplit ( "#", tostring(msg) )
       local LD_AllFlds = { strsplit ( "#", tostring(msg) )}
+	  
+	  
       if (LD_Head == "PRTXT") then -- Imprime texto
 	     -- print(msg)
          print (LD_Body)
+      elseif (LD_Head == "LDNOG") then -- CLEAR RAID
+	     LD_ClearRAID()
+		 LD_RaidFrame:Hide()
+      elseif (LD_Head == "LDGRM") then -- FILL RAID
+	     -- LD_ServerDebug ( msg )
+	     local Name = LD_Pj
+		 local Index = tonumber(LD_Body)
+		 local Conn = LD_AllFlds[4]
+		 if Name == "VOID" then
+		    LD_RaidFrame.Slots[Index]:SetText("")
+		 else
+		    LD_RaidFrame.Slots[Index]:SetText(LD_Pj)
+		 end
+		 if Conn == "false" then
+		    LD_RaidFrame.Slots[Index]:SetTextColor(0.5,0.5,0.5,0.5)
+		 else	
+		    LD_RaidFrame.Slots[Index]:SetTextColor(0,1,0,1)
+		 end
+ 		 if not LD_RaidFrame:IsVisible() then
+            LD_RaidFrame:Show()
+         end   
       elseif (LD_Head == "PVEMD") then -- MODO PVE
          AIO_LD_CONFIG["ROLMODE"] = false
-	     LD_RolFrame:Hide()
-		 LD_ROLFrame:Hide()
+		 TimeManagerClockButton:SetParent(CLK_f)
+		 TimeManagerClockButton:SetPoint(CLK_p, CLK_f, CLK_r, CLK_x, CLK_y)
+		 LD_RolFrame:Hide()
 		 LD_ATRFrame:Hide()
 		 LD_MacroFrame:Hide()
 		 LD_StatusBars:Hide()
@@ -263,6 +329,8 @@ else
 
          AIO_LD_CONFIG["ROLMODE"] = true
 		 LD_RolFrame = LD_SetMainFrame()
+		 TimeManagerClockButton:SetParent(LD_RolFrame)
+		 TimeManagerClockButton:SetPoint("TOPLEFT", LD_RolFrame, "TOPLEFT", 0, 10)
          LD_StatusBars:Show()
 		 MainMenuBar:SetParent(LD_DummyFrame)
 	     MainMenuBar:SetPoint(Saved_point, 
@@ -307,6 +375,9 @@ else
 		 MyBt1 = ActionButton1
 		 MyBt1:Show()
 		 
+		 -- A ver si estamos en grupo
+	     LDSendMsg("LDPMF#" .. UnitName("player") )   
+
 		 SysPrint ("Modo rol activado")
 		 -- print ("Como la cosa no está terminada vas a tener que usar barras secundarias y esas mandangas")
 		 -- print ("¿Te molesta verdad? .... Vaaaale perdona")
@@ -339,6 +410,23 @@ else
 		 end
 		 AIO_LD_CONFIG[LD_Type][LD_Index] = LD_Value
 		 -- print ("DEBUG: AIO_LD_CONFIG[" .. LD_Type .. "][" .. LD_Index .. "] = " .. LD_Value )
+
+
+	 elseif LD_Head == "LDDAT" then -- DATOS GENERALES
+	     local LD_Index    = LD_AllFlds[2]
+	     local LD_Value    = LD_AllFlds[3]
+		 local LD_Type     = LD_AllFlds[4]
+		 local LD_Section  = LD_AllFlds[5]
+		 if AIO_LD_CONFIG["DATA"] == nil then
+		    AIO_LD_CONFIG["DATA"] = {}
+		 end
+		 if AIO_LD_CONFIG["DATA"][LD_Type] == nil then
+		    AIO_LD_CONFIG["DATA"][LD_Type] = {}
+		 end
+		 if AIO_LD_CONFIG["DATA"][LD_Type][LD_Section] == nil then
+		    AIO_LD_CONFIG["DATA"][LD_Type][LD_Section] = {}
+		 end
+		 AIO_LD_CONFIG["DATA"][LD_Type][LD_Section][LD_Index] = LD_Value
 		 
       elseif LD_Head == "LDEVT" then -- MAESTROS DE ATRIBUTO
 	     -- print ("DEBUG: " .. LD_AllFlds[3] )
@@ -366,6 +454,22 @@ else
 			LD_AttrVendFrame.AttrBBDD  = LD_ATRVendors[LD_AllFlds[3]][1]
 		    LD_AttrVendFrame:Show()
 		 elseif LD_AllFlds[3] == "Tutorius Atributum" then
+			LD_AttrTutor:SetSize(520, 500)
+		    LD_AttrTutor.MyVendTxl:SetText(EXPLICACION_ATRIBUTOS)
+			LD_AttrTutor.MyVend:SetText("Explicacion de los atributos")
+			LD_AttrTutor.MyVendTxl:SetSize (500, 420)
+		    LD_AttrTutor:Show()
+		 elseif LD_AllFlds[3] == "Abecesio Porterele" then
+            LD_AttrTutor:SetSize(320, 500)
+		    LD_AttrTutor.MyVendTxl:SetText(HISTORIA_TIRISFAL)
+            LD_AttrTutor.MyVend:SetText("Monasterio de Tirisfal")
+            LD_AttrTutor.MyVendTxl:SetSize (300, 420)
+		    LD_AttrTutor:Show()
+		 elseif LD_AllFlds[3] == "Pretibolio Cuchicherez" then
+            LD_AttrTutor:SetSize(320, 400)
+		    LD_AttrTutor.MyVendTxl:SetText(ESTADO_GENERAL)
+            LD_AttrTutor.MyVend:SetText("Estado General")
+            LD_AttrTutor.MyVendTxl:SetSize (300, 380)
 		    LD_AttrTutor:Show()
          else
 		    LD_AttrVendFrame:Hide()
@@ -393,6 +497,8 @@ else
 		 elseif LD_AllFlds[3] == "SHOW" then
 			LD_ApproFrame:Show()
          end
+	  else
+	     LD_ServerDebug ("Client, unhandled message: " .. msg )
       end
    end     	  
    
@@ -407,6 +513,7 @@ else
    LD_DummyFrame:SetSize(20,20)
    LD_DummyFrame:RegisterEvent("TARGET_UNIT")
    LD_DummyFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+   LD_DummyFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
    LD_DummyFrame:SetScript("OnEvent", LDDummy_OnEvent)
   
 

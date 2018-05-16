@@ -8,8 +8,6 @@ SLD_Macros =
     unpack = unpack,
 }
 
-
-
 local SLD_Macros = SLD_Macros
 if not AIO.AddAddon() then
 LD_MacroFrame = CreateFrame ( "Frame", "LD_MacroFrame", UIParent )
@@ -93,12 +91,10 @@ LD_MacroFrame:SetScript("OnShow",
       LD_MacroFrame.MyIcons["R"].MyT:SetTexture(GetActionTexture(11))
       LD_MacroFrame.MyIcons["S"].MyT:SetTexture(GetActionTexture(12))
    end)
- 
-
-
-
-
-
 else
+   --
+   -- CARGA DE DATOS MASIVA
+   --
+   
    PrintInfo("SLD Macros Loaded ...")
 end

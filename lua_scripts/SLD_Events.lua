@@ -18,7 +18,7 @@ if not AIO.AddAddon() then
 		 local MyNombre = "";
          texte = string.gsub(texte,"%<.-%>",couleur.."%1|r");
          texte = string.gsub(texte,"%*.-%*",couleur.."%1|r");
-		 LD_ServerDebug ( "EventSAY: " .. texte .. ":" .. arg2 .. ":" .. arg3 )
+		 -- LD_ServerDebug ( "EventSAY: " .. texte .. ":" .. arg2 .. ":" .. arg3 )
 		 -- if AIO_LD_CONFIG["ROL"] == nil then
 		 --    MyNombre = coloredName
          -- elseif AIO_LD_CONFIG["ROL"]["NOMBRE"] ~= nil and AIO_LD_CONFIG["ROL"]["APELLIDO"] ~= nil then
@@ -29,6 +29,8 @@ if not AIO.AddAddon() then
 		 -- end
          DEFAULT_CHAT_FRAME:AddMessage("[" .. coloredName .. "] dice: " .. texte)
 		 return true
+		 
+		 
    end
    function LDDummy_OnEvent(self, event, ...)
       if event == "TARGET_UNIT" or 
@@ -44,7 +46,14 @@ if not AIO.AddAddon() then
 		    return
 		 end	
 	     LDSendMsg("LDEVT#" .. UnitName("player") .. "#" .. UnitName("target") )
-      end		 
+	  elseif event == "PARTY_MEMBERS_CHANGED" then	 
+	     LDSendMsg("LDPMF#" .. UnitName("player"))
+	  elseif event == "PLAYER_ENTERING_WORLD" then	 
+	     LDSendMsg("LDPMF#" .. UnitName("player"))
+      elseif event == "PLAYER_LEAVING_WORLD" then	 
+	     LDSendMsg("LDPMF#" .. UnitName("player"))
+      end
+	  
    end	  
 	--
 	-- COMANDOS DE CONSOLA
@@ -111,6 +120,16 @@ if not AIO.AddAddon() then
 		  return
 	   end
        LDSendMsg("HISPJ#" .. msg )	   
+    end 
+
+	SLASH_HID1 = "/myaura"
+    SLASH_HID2 = "/myspell"
+    SlashCmdList["HID"] = function(msg)
+	   if msg == "" then
+	      print ("Uso: /myaura | /myspell [SpellID]")
+		  return
+	   end
+       LDSendMsg("HIDPJ#" .. msg )	   
     end 
 
 else   

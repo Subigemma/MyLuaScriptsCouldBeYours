@@ -211,6 +211,44 @@ if not AIO.AddAddon() then
 			end
          end)
 
+	  -- ESCONDER/MOSTRAR CASCO
+	  LD_MainFrame.Button6 = LD_ButtonFrameSmall ( 190, 25, LD_MainFrame, "Interface\\ICONS\\Inv_crown_15" )
+      LD_MainFrame.Button6:SetScript("OnEnter", 
+	     function(self) 
+		    self:SetAlpha(1) 
+            GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+            GameTooltip:AddLine("|cff00ffff Esconder/Mostrar Casco");
+            GameTooltip:Show();		 
+		 end)
+      LD_MainFrame.Button6:SetScript("OnLeave", 
+	     function(self) 
+		    self:SetAlpha(0.5) 
+            GameTooltip:Hide();
+         end)
+      LD_MainFrame.Button6:SetScript("OnClick", 
+	     function(self) 
+		    ShowHelm(not ShowingHelm())
+         end)
+
+	  -- ESCONDER/MOSTRAR CAPA
+	  LD_MainFrame.Button7 = LD_ButtonFrameSmall ( 190, 10, LD_MainFrame, "Interface\\ICONS\\inv_fabric_felrag" )
+      LD_MainFrame.Button7:SetScript("OnEnter", 
+	     function(self) 
+		    self:SetAlpha(1) 
+            GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+            GameTooltip:AddLine("|cff00ffff Esconder/Mostrar Capa");
+            GameTooltip:Show();		 
+		 end)
+      LD_MainFrame.Button7:SetScript("OnLeave", 
+	     function(self) 
+		    self:SetAlpha(0.5) 
+            GameTooltip:Hide();
+         end)
+      LD_MainFrame.Button7:SetScript("OnClick", 
+	     function(self) 
+		    ShowCloak(not ShowingCloak())
+         end)
+
 	  return LD_MainFrame
    end
 
@@ -251,7 +289,7 @@ LD_ROLFrame = CreateFrame ( "Frame", "LD_ROLFrame", UIParent )
 local LD_ROLFrameBackground = LD_ROLFrame:CreateTexture("LD_ROLFrameBackground", "BACKGROUND")
 LD_ROLFrameBackground:SetTexture(0, 0, 1, 0.1)
 LD_ROLFrameBackground:SetAllPoints()
-LD_ROLFrame:SetSize(400, 120)
+LD_ROLFrame:SetSize(400, 170)
 LD_ROLFrame:SetPoint("BOTTOMRIGHT", 0, 50)
 LD_ROLFrame:SetMovable(true)
 LD_ROLFrame:EnableMouse(true)
@@ -259,11 +297,6 @@ LD_ROLFrame.MyTitle = LD_ROLFrame:CreateTitleRegion()
 LD_ROLFrame.MyTitle:SetSize(400, 100) 
 LD_ROLFrame.MyTitle:SetPoint("TOPLEFT", LD_ROLFrame, "TOPLEFT", 0, 0)
 
--- OBJETIVO
-LD_ROLFrame.TargetT=LD_ROLFrame:CreateFontString(nil,"ARTWORK","GameFontHighlight")
-LD_ROLFrame.TargetT:SetTextColor(1, 1, 0, 1)
-LD_ROLFrame.TargetT:SetPoint("BOTTOMLEFT", 230,110)
-LD_ROLFrame.TargetT:SetText("Tiradas de atributo:")
 
 -- DADOS 1
 
@@ -271,7 +304,7 @@ LD_ROLFrame.Dice1Txt1=LD_ROLFrame:CreateFontString(nil,"ARTWORK","GameFontHighli
 LD_ROLFrame.Dice1Txt1:SetTextColor(1, 1, 1, 1)
 LD_ROLFrame.Dice1Txt1:SetPoint("BOTTOMLEFT",10,100)
 LD_ROLFrame.Dice1Txt1:SetText("Dados(1) Min:")
-LD_ROLFrame.Dice1Min = LD_EditFrame (LD_ROLFrame, 100, -7, 20, 15, 1, 0, true)
+LD_ROLFrame.Dice1Min = LD_EditFrame (LD_ROLFrame, 100, -57, 20, 15, 1, 0, true)
 LD_ROLFrame.Dice1Min:SetScript("OnLeave" ,
    function(self)
       AIO_LD_CONFIG["DICE"]["DICE1MIN"] = tonumber(self:GetText())
@@ -281,7 +314,7 @@ LD_ROLFrame.Dice1Txt2=LD_ROLFrame:CreateFontString(nil,"ARTWORK","GameFontHighli
 LD_ROLFrame.Dice1Txt2:SetTextColor(1, 1, 1, 1)
 LD_ROLFrame.Dice1Txt2:SetPoint("BOTTOMLEFT",125,100)
 LD_ROLFrame.Dice1Txt2:SetText("Max:")
-LD_ROLFrame.Dice1Max = LD_EditFrame (LD_ROLFrame, 160, -7, 30, 15, 2, 0, true)
+LD_ROLFrame.Dice1Max = LD_EditFrame (LD_ROLFrame, 160, -57, 30, 15, 2, 0, true)
 LD_ROLFrame.Dice1Max:SetScript("OnLeave" ,
    function(self)
       AIO_LD_CONFIG["DICE"]["DICE1MAX"] = tonumber(self:GetText())
@@ -310,7 +343,7 @@ LD_ROLFrame.Dice2Txt1=LD_ROLFrame:CreateFontString(nil,"ARTWORK","GameFontHighli
 LD_ROLFrame.Dice2Txt1:SetTextColor(1, 1, 1, 1)
 LD_ROLFrame.Dice2Txt1:SetPoint("BOTTOMLEFT",10, 80)
 LD_ROLFrame.Dice2Txt1:SetText("Dados(2) Min:")
-LD_ROLFrame.Dice2Min = LD_EditFrame (LD_ROLFrame, 100, -30, 20, 15, 3, 0, true)
+LD_ROLFrame.Dice2Min = LD_EditFrame (LD_ROLFrame, 100, -80, 20, 15, 3, 0, true)
 LD_ROLFrame.Dice2Min:SetScript("OnLeave" ,
    function(self)
       AIO_LD_CONFIG["DICE"]["DICE2MIN"] = tonumber(self:GetText())
@@ -320,7 +353,7 @@ LD_ROLFrame.Dice2Txt2 = LD_ROLFrame:CreateFontString(nil,"ARTWORK","GameFontHigh
 LD_ROLFrame.Dice2Txt2:SetTextColor(1, 1, 1, 1)
 LD_ROLFrame.Dice2Txt2:SetPoint("BOTTOMLEFT",125, 80)
 LD_ROLFrame.Dice2Txt2:SetText("Max:")
-LD_ROLFrame.Dice2Max = LD_EditFrame (LD_ROLFrame, 160, -30, 30, 15, 4, 0, true)
+LD_ROLFrame.Dice2Max = LD_EditFrame (LD_ROLFrame, 160, -80, 30, 15, 4, 0, true)
 LD_ROLFrame.Dice2Max:SetScript("OnLeave" ,
    function(self)
       AIO_LD_CONFIG["DICE"]["DICE2MAX"] = tonumber(self:GetText())
@@ -344,7 +377,7 @@ LD_ROLFrame.Dice2:SetScript("OnClick",
       RandomRoll(tonumber(LD_ROLFrame.Dice2Min:GetText()), tonumber(LD_ROLFrame.Dice2Max:GetText()))
    end)
 -- TEXTO1   
-LD_ROLFrame.Txt1 = LD_EditFrame (LD_ROLFrame, 10, -50, 300, 17, 5, "", false)
+LD_ROLFrame.Txt1 = LD_EditFrame (LD_ROLFrame, 10, -100, 300, 17, 5, "", false)
 LD_ROLFrame.Txt1:SetScript("OnLeave", 
    function(self)
       AIO_LD_CONFIG["SAY"]["SAY1"] = self:GetText()
@@ -405,7 +438,7 @@ LD_ROLFrame.Gri1:SetScript("OnClick",
 --    
 -- TEXTO2
 --
-LD_ROLFrame.Txt2 = LD_EditFrame (LD_ROLFrame, 10, -70, 300, 17, 6, "", false)
+LD_ROLFrame.Txt2 = LD_EditFrame (LD_ROLFrame, 10, -120, 300, 17, 6, "", false)
 LD_ROLFrame.Txt2:SetScript("OnLeave", 
    function(self)
       AIO_LD_CONFIG["SAY"]["SAY2"] = self:GetText()
@@ -464,7 +497,7 @@ LD_ROLFrame.Gri2:SetScript("OnClick",
    end)
    
 -- TEXTO3
-LD_ROLFrame.Txt3 = LD_EditFrame (LD_ROLFrame, 10, -90, 300, 17, 7, "", false)
+LD_ROLFrame.Txt3 = LD_EditFrame (LD_ROLFrame, 10, -140, 300, 17, 7, "", false)
 LD_ROLFrame.Txt3:SetScript("OnLeave", 
    function(self)
       AIO_LD_CONFIG["SAY"]["SAY3"] = self:GetText()
@@ -531,9 +564,32 @@ LD_ROLFrame:SetScript("OnShow",
       self.Txt2:SetText(AIO_LD_CONFIG["SAY"]["SAY2"])
       self.Txt3:SetText(AIO_LD_CONFIG["SAY"]["SAY3"])
    end)   
+
+--
+-- Zona de banda
+--
+LD_ROLFrame.AlertZone=CreateFrame( "Frame", "LD_ROLFrameAlertZone", LD_ROLFrame )
+LD_ROLFrame.AlertZone:SetPoint("TOPLEFT", 5,-5)
+LD_ROLFrame.AlertZone:SetSize(300,40)
+LD_ROLFrame.AlertZone:SetBackdrop({
+	edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+	edgeSize = 14,
+	insets = {left = 3, right = 3, top = 3, bottom = 3},
+})
+LD_ROLFrame.AlertZone.TxtAlert=LD_ROLFrame.AlertZone:CreateFontString(nil,"ARTWORK","GameFontHighlight")
+LD_ROLFrame.AlertZone.TxtAlert:SetTextColor(1, 0.5, 0, 1)
+LD_ROLFrame.AlertZone.TxtAlert:SetPoint("TOPLEFT", 5 , -5)
+LD_ROLFrame.AlertZone.TxtAlert:SetSize(190, 30)
+LD_ROLFrame.AlertZone.TxtAlert:SetText("Zona comunicados")
+
 --   
 -- TIRADAS DE ATRIBUTO 
 --
+LD_ROLFrame.TAttr=LD_ROLFrame:CreateFontString(nil,"ARTWORK","GameFontHighlight")
+LD_ROLFrame.TAttr:SetTextColor(1, 1, 0, 1)
+LD_ROLFrame.TAttr:SetPoint("BOTTOMLEFT", 230,110)
+LD_ROLFrame.TAttr:SetText("Tiradas de atributo:")
+
 -- PERCEPCION  
 LD_ROLFrame.DicePercep = LD_ButtonFrame ( 230, 80, LD_ROLFrame, "Interface\\ICONS\\ability_cheapshot" )
 LD_ROLFrame.DicePercep:SetScript("OnEnter", 
@@ -700,7 +756,7 @@ local LD_ATRFrameBackground = LD_ATRFrame:CreateTexture("LD_ATRFrameBackground",
 LD_ATRFrameBackground:SetTexture(0, 0, 1, 0.1)
 LD_ATRFrameBackground:SetAllPoints()
 LD_ATRFrame:SetSize(400, 250)
-LD_ATRFrame:SetPoint("BOTTOMRIGHT", 0, 170)
+LD_ATRFrame:SetPoint("BOTTOMRIGHT", 0, 220)
 LD_ATRFrame:SetMovable(true)
 LD_ATRFrame:EnableMouse(true)
 LD_ATRFrame.MyTitle = LD_ATRFrame:CreateTitleRegion()

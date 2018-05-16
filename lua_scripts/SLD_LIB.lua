@@ -199,6 +199,17 @@ if not AIO.AddAddon() then
 	  MyFrame:SetPoint ( "BOTTOMLEFT", Xoff, Yoff )
 	  return MyFrame
    end
+   function LD_ButtonFrameSmall (Xoff, Yoff, PFrame, Icon)
+      local MyFrame = CreateFrame ( "Button", "LD_F" .. tostring(Xoff) .. tostring(Yoff), PFrame )
+	  MyFrame:SetSize(10,10)
+	  MyFrame:SetAlpha(0.5)
+	  local MyT = MyFrame:CreateTexture(nil,"BACKGROUND",nil,-6)
+      MyT:SetTexture(Icon)
+      MyT:SetTexCoord(0.1,0.9,0.1,0.9) --cut out crappy icon border
+      MyT:SetAllPoints(MyFrame) --make texture sa
+	  MyFrame:SetPoint ( "BOTTOMLEFT", Xoff, Yoff )
+	  return MyFrame
+   end
    
    function LD_ButtonFrameTop (Xoff, Yoff, PFrame, Icon)
       local MyFrame = CreateFrame ( "Button", "LD_BF" .. tostring(Xoff) .. tostring(Yoff), PFrame )
@@ -229,6 +240,7 @@ if not AIO.AddAddon() then
 	  MyFont:SetText ( Text )
 	  return MyFont
    end
+   
    function LD_LabelTopS (Xoff, Yoff, PFrame, Text)
       local MyFont = PFrame:CreateFontString(nil,"ARTWORK","GameFontHighlight")
       MyFont:SetFontObject(GameFontNormalSmall)   
@@ -237,6 +249,7 @@ if not AIO.AddAddon() then
 	  MyFont:SetText ( Text )
 	  return MyFont
    end
+
 else
    --
    -- FUNCIONES DE UTILIDAD DEL SERVER
@@ -253,6 +266,80 @@ else
       end
       return t
    end
+   function LD_GetPjNameByID ( MyID )
+      local MySQLCommand= "SELECT name from characters where guid = " .. tostring(MyID) .. ";"
+	  local MyRes = CharDBQuery(MySQLCommand)
+	  local MyVal = nil
+	  local MyList = {}
+	  local MyIndex = 1
+      if ( MyRes ~= nil ) then
+         local NumRows = MyRes:GetRowCount()
+         for i = 1,NumRows do
+            MyVal = MyRes:GetString( 0 )
+            MyRes:NextRow()
+         end
+      end
+	  return MyVal
+   end
+   function LD_GetGroupMembersByLeader ( MyID )
+      local MySQLCommand= "SELECT guid from group_member where memberGuid = " .. tostring(MyID) .. ";"
+	  local MyRes = CharDBQuery(MySQLCommand)
+	  local MyVal = nil
+	  local MyList = {}
+	  local MyIndex = 1
+      if ( MyRes ~= nil ) then
+         local NumRows = MyRes:GetRowCount()
+         for i = 1,NumRows do
+            MyVal = MyRes:GetString( 0 )
+            MyRes:NextRow()
+         end
+      end
+	  MySQLCommand= "SELECT memberGuid from group_member where guid = " .. tostring(MyVal) .. ";"
+	  MyRes = CharDBQuery(MySQLCommand)
+      if ( MyRes ~= nil ) then
+         local NumRows = MyRes:GetRowCount()
+         for i = 1,NumRows do
+            MyList[MyIndex] = MyRes:GetString( 0 )
+			MyIndex=MyIndex+1
+            MyRes:NextRow()
+         end
+      end
+	  return MyList
+   end
+   function LD_CheckPjGroup ( player )
+      local MyGrp = player:GetGroup()
+      if MyGrp == nil then
+         AIO.Msg():Add("LDMsg", "LDNOG#SYS" ):Send(player)
+		 return
+      end
+	  local MyleaderGUID = MyGrp:GetLeaderGUID()
+	  local MyGrpMembers = LD_GetGroupMembersByLeader(MyleaderGUID)
+      local NumGrPj = MyGrp:GetMembersCount()
+	  local MyPlayer = nil
+	  local MyPlayerName = ""
+	  for k in pairs(MyGrpMembers) do
+	     MyPlayerName = LD_GetPjNameByID(MyGrpMembers[k])
+		 MyPlayer = GetPlayerByName(MyPlayerName)
+	     PrintInfo("[DEBUG]LD_CheckPjGroup[" .. MyPlayerName .. "][" .. tostring(MyGrpMembers[k]) .. "] Lead:" .. tostring(MyleaderGUID))
+		 if MyPlayer == nil then 
+		    if MyGrpMembers[k] == MyleaderGUID then
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. " (L)#" .. tostring(k) .. "#false#N#" ):Send(player)
+			else
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#false#N#" ):Send(player)
+			end
+		 else	
+		    if MyGrpMembers[k] == MyleaderGUID then
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. " (L)#" .. tostring(k) .. "#true#N#" ):Send(player)
+			else
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#true#N#" ):Send(player)
+			end
+		 end
+	  end
+      for LoopVar=NumGrPj+1,20 do
+         AIO.Msg():Add("LDMsg", "LDGRM#VOID#" .. 
+		    tostring(LoopVar) .. "#VOID#VOID" ):Send(player)
+	  end
+   end	  
    function SendMsgGroup ( player, msg )
       
       local MyGrp = player:GetGroup()
@@ -420,10 +507,12 @@ else
          end
       end
    end
+   
    function LD_Dice (Min, Max)
       local r = math.random(Min,Max)
 	  return r
    end
+   
    PrintInfo("LD Libraries loaded") 
 end
    
