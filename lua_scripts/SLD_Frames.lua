@@ -249,6 +249,29 @@ if not AIO.AddAddon() then
 		    ShowCloak(not ShowingCloak())
          end)
 
+	  -- ESCONDER/MOSTRAR CAPA
+	  LD_MainFrame.Button8 = LD_ButtonFrameSmall(205,25,LD_MainFrame, "Interface\\ICONS\\inv_misc_groupneedmore")
+      LD_MainFrame.Button8:SetScript("OnEnter", 
+	     function(self) 
+		    self:SetAlpha(1) 
+            GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+            GameTooltip:AddLine("|cff00ffff Esconder/Mostrar RAID");
+            GameTooltip:Show();		 
+		 end)
+      LD_MainFrame.Button8:SetScript("OnLeave", 
+	     function(self) 
+		    self:SetAlpha(0.5) 
+            GameTooltip:Hide();
+         end)
+      LD_MainFrame.Button8:SetScript("OnClick", 
+	     function(self) 
+		    if LD_RaidFrame:IsVisible() then
+			   LD_RaidFrame:Hide()
+			else
+			   LD_RaidFrame:Show()
+			end   
+         end)
+
 	  return LD_MainFrame
    end
 
@@ -570,7 +593,7 @@ LD_ROLFrame:SetScript("OnShow",
 --
 LD_ROLFrame.AlertZone=CreateFrame( "Frame", "LD_ROLFrameAlertZone", LD_ROLFrame )
 LD_ROLFrame.AlertZone:SetPoint("TOPLEFT", 5,-5)
-LD_ROLFrame.AlertZone:SetSize(300,40)
+LD_ROLFrame.AlertZone:SetSize(200,40)
 LD_ROLFrame.AlertZone:SetBackdrop({
 	edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 	edgeSize = 14,
@@ -580,7 +603,21 @@ LD_ROLFrame.AlertZone.TxtAlert=LD_ROLFrame.AlertZone:CreateFontString(nil,"ARTWO
 LD_ROLFrame.AlertZone.TxtAlert:SetTextColor(1, 0.5, 0, 1)
 LD_ROLFrame.AlertZone.TxtAlert:SetPoint("TOPLEFT", 5 , -5)
 LD_ROLFrame.AlertZone.TxtAlert:SetSize(190, 30)
-LD_ROLFrame.AlertZone.TxtAlert:SetText("Zona comunicados")
+LD_ROLFrame.AlertZone.TxtAlert:SetText("")
+
+LD_ROLFrame.TurnZone=CreateFrame( "Frame", "LD_ROLFrameTurnZone", LD_ROLFrame )
+LD_ROLFrame.TurnZone:SetPoint("TOPLEFT", 210,-5)
+LD_ROLFrame.TurnZone:SetSize(180,40)
+LD_ROLFrame.TurnZone:SetBackdrop({
+	edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+	edgeSize = 14,
+	insets = {left = 3, right = 3, top = 3, bottom = 3},
+})
+LD_ROLFrame.TurnZone.TxtAlert=LD_ROLFrame.TurnZone:CreateFontString(nil,"ARTWORK","GameFontHighlight")
+LD_ROLFrame.TurnZone.TxtAlert:SetTextColor(1, 0.5, 0, 1)
+LD_ROLFrame.TurnZone.TxtAlert:SetPoint("TOPLEFT", 5 , -5)
+LD_ROLFrame.TurnZone.TxtAlert:SetSize(170, 30)
+LD_ROLFrame.TurnZone.TxtAlert:SetText("")
 
 --   
 -- TIRADAS DE ATRIBUTO 

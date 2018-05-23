@@ -160,10 +160,10 @@ LD_ApproFrame:Hide()
 -- BARRAS
 --
 LD_StatusBars=CreateFrame ( "Frame", "LD_StatusBars", UIParent )
-LD_StatusBars:SetSize(850, 60)
+LD_StatusBars:SetSize(550, 60)
 LD_StatusBars:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 0)
 LD_StatusBars.MyTitle = LD_StatusBars:CreateTitleRegion()
-LD_StatusBars.MyTitle:SetSize(850, 60) 
+LD_StatusBars.MyTitle:SetSize(550, 60) 
 LD_StatusBars.MyTitle:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 0, 0)
 -- LD_StatusBars:EnableMouse(true)
 -- LD_StatusBars:SetMovable(false)
@@ -171,11 +171,11 @@ LD_StatusBars.MyTitle:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 0, 0)
 LD_StatusBars.HPBar = CreateFrame("StatusBar", nil, LD_StatusBars)
 LD_StatusBars.HPBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 LD_StatusBars.HPBar:GetStatusBarTexture():SetHorizTile(true)
-LD_StatusBars.HPBar:SetWidth(800)
+LD_StatusBars.HPBar:SetWidth(500)
 LD_StatusBars.HPBar:SetHeight(10)
 LD_StatusBars.HPBar:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 10, -10)
 LD_StatusBars.HPBar:SetStatusBarColor(0,1,0)
-LD_StatusBars.HPBar:SetMinMaxValues(0, 800)
+LD_StatusBars.HPBar:SetMinMaxValues(0, 500)
 LD_StatusBars.HPBar:SetValue(300)
 LD_StatusBars.HPBar:SetAlpha(0.6)
 LD_StatusBars.HPBar:EnableMouse(true)
@@ -183,11 +183,11 @@ LD_StatusBars.HPBar:EnableMouse(true)
 LD_StatusBars.EPBar = CreateFrame("StatusBar", nil, LD_StatusBars)
 LD_StatusBars.EPBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 LD_StatusBars.EPBar:GetStatusBarTexture():SetHorizTile(true)
-LD_StatusBars.EPBar:SetWidth(800)
+LD_StatusBars.EPBar:SetWidth(500)
 LD_StatusBars.EPBar:SetHeight(10)
 LD_StatusBars.EPBar:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 10, -25)
 LD_StatusBars.EPBar:SetStatusBarColor(1,1,0)
-LD_StatusBars.EPBar:SetMinMaxValues(0, 800)
+LD_StatusBars.EPBar:SetMinMaxValues(0, 500)
 LD_StatusBars.EPBar:SetValue(300)
 LD_StatusBars.EPBar:SetAlpha(0.6)
 LD_StatusBars.EPBar:EnableMouse(true)
@@ -195,32 +195,31 @@ LD_StatusBars.EPBar:EnableMouse(true)
 LD_StatusBars.MPBar = CreateFrame("StatusBar", nil, LD_StatusBars)
 LD_StatusBars.MPBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 LD_StatusBars.MPBar:GetStatusBarTexture():SetHorizTile(true)
-LD_StatusBars.MPBar:SetWidth(800)
+LD_StatusBars.MPBar:SetWidth(500)
 LD_StatusBars.MPBar:SetHeight(10)
 LD_StatusBars.MPBar:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 10, -40)
 LD_StatusBars.MPBar:SetStatusBarColor(0,0,1)
-LD_StatusBars.MPBar:SetMinMaxValues(0, 800)
+LD_StatusBars.MPBar:SetMinMaxValues(0, 500)
 LD_StatusBars.MPBar:SetValue(300)
 LD_StatusBars.MPBar:SetAlpha(0.6)
 LD_StatusBars.MPBar:EnableMouse(true)
 
 LD_StatusBars:Hide()
 function LD_RefreshBars()
-   AIO_LD_CONFIG["HP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["CONSTI"]) * 0.8 ) + 
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 0.2 )
+   AIO_LD_CONFIG["HP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["CONSTI"]) * 1.7 ) + (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 1.3 )
    AIO_LD_CONFIG["HP"] = AIO_LD_CONFIG["HP"] * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVHP"]
-   LD_StatusBars.HPBar:SetValue(AIO_LD_CONFIG["HP"] * 5)   
-   AIO_LD_CONFIG["EP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["CONSTI"]) * 0.4 ) + 
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["AGILID"]) * 0.2 ) +
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 0.2 ) +
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["FUERZA"]) * 0.2 ) 
+   LD_StatusBars.HPBar:SetValue(AIO_LD_CONFIG["HP"]*3)   
+   AIO_LD_CONFIG["EP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["CONSTI"]) * 1.4) + 
+                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["AGILID"]) * 1.2 ) +
+                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 1.2 ) +
+                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["FUERZA"]) * 1.2 ) 
    AIO_LD_CONFIG["EP"] = AIO_LD_CONFIG["EP"] * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVEP"]
-   LD_StatusBars.EPBar:SetValue(AIO_LD_CONFIG["EP"] * 5)   
+   LD_StatusBars.EPBar:SetValue(AIO_LD_CONFIG["EP"]*3)   
 
-   AIO_LD_CONFIG["MP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 0.7 ) + 
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["INTELE"]) * 0.3 ) 
+   AIO_LD_CONFIG["MP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 1.7 ) + 
+                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["INTELE"]) * 1.3 ) 
    AIO_LD_CONFIG["MP"] = AIO_LD_CONFIG["MP"] * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVMP"]
-   LD_StatusBars.MPBar:SetValue(AIO_LD_CONFIG["MP"] * 5)   
+   LD_StatusBars.MPBar:SetValue(AIO_LD_CONFIG["MP"]*3)   
 end
 
 LD_StatusBars.HPBar:SetScript("OnEnter", 

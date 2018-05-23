@@ -5,6 +5,7 @@ local SLD_Frames = SLD_Frames or require("SLD_Frames")
 local SLD_Frames2 = SLD_Frames2 or require("SLD_Frames2")
 local SLD_Frames3 = SLD_Frames3 or require("SLD_Frames3")
 local SLD_Macros = SLD_Macros or require("SLD_Macros")
+local SLD_Data = SLD_Data or require("SLD_Data")
 
 local HandleLDMsg
 
@@ -20,6 +21,12 @@ if AIO.AddAddon() then
 	  
       if LD_Head == "PRTXT" then     -- IMPRIME UN TEXTO POR EL CHAT GENERAL A LOS MIEMBROS DEL GRUPO
          SendMsgGroup(player, msg)
+
+	  elseif LD_Head == "OPCMT" then -- ABRIR COMBATE
+		 SendMsgGroup(player, "OPCMT#OPCMT#")
+      
+	  elseif LD_Head == "CLCMT" then -- CERRAR COMBATE
+		 SendMsgGroup(player, "CLCMT#CLCMT#")
 		 
       elseif LD_Head == "DICAT" then  -- DADOS DE ATRIBUTO
          PrintInfo("[INFO]HandleLDMsg:DICAT:[" .. player:GetAccountName() .. "]" ..  msg )
@@ -36,7 +43,11 @@ if AIO.AddAddon() then
       elseif LD_Head == "LDPMF" then  -- RECARGA DE MIEMBROS DE LA RAID
 		 LD_CheckPjGroup(player)
 		 
+      elseif LD_Head == "LDDAT" then -- CARGA MASIVA DE DATOS
+	     SLD_LoadData(player)
+
       elseif LD_Head == "HELLO" then -- PERSONAJE ENTRA AL MUNDO
+	     SLD_LoadData(player)
 		 LD_SavePjPlayer ( LD_Table[2], player:GetAccountName() )
 		 
       elseif LD_Head == "ROLMD" then -- PERSONAJE EN MODO ROL
@@ -94,6 +105,12 @@ if AIO.AddAddon() then
 		 local MyNPCLow = tonumber(LD_Table[3],16)
 		 local MyCreature = player:GetMap():GetWorldObject((GetUnitGUID( MyNPCLow, MyNPCId )))
 	     MyCreature:SendUnitSay(LD_Table[5], 0)
+		 
+      elseif LD_Head == "NPEMT" then -- EMOTE DE UN NPC
+		 local MyNPCId  = tonumber(LD_Table[4],16)
+		 local MyNPCLow = tonumber(LD_Table[3],16)
+		 local MyCreature = player:GetMap():GetWorldObject((GetUnitGUID( MyNPCLow, MyNPCId )))
+	     MyCreature:SendUnitEmote(LD_Table[5], 0)
 		 
 	  elseif LD_Head == "SEENK" then -- VEO DESNUDO
 		 if (player:HasAura(54844)) then
@@ -241,19 +258,49 @@ else
 	     LD_ClearRAID()
 		 LD_RaidFrame:Hide()
       elseif (LD_Head == "LDGRM") then -- FILL RAID
-	     -- LD_ServerDebug ( msg )
+	     LD_ServerDebug ( msg )
 	     local Name = LD_Pj
 		 local Index = tonumber(LD_Body)
 		 local Conn = LD_AllFlds[4]
+		 local Fun  = LD_AllFlds[5]
 		 if Name == "VOID" then
-		    LD_RaidFrame.Slots[Index]:SetText("")
+		    LD_RaidFrame.Slots[Index].Txt:SetText("")
 		 else
-		    LD_RaidFrame.Slots[Index]:SetText(LD_Pj)
-		 end
+		    if Fun == "L" then 
+			   LD_RaidFrame.Slots[Index].Fun:SetText("(L)")
+			elseif Fun == "A" then   
+			   LD_RaidFrame.Slots[Index].Fun:SetText("(A)")
+			end   
+		    LD_RaidFrame.Slots[Index].Txt:SetText(LD_Pj)
+			LD_RaidFrame.Slots[Index]:SetScript("OnEnter" , 
+			   function (self)
+			      if AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"] == nil then
+				     return
+				  end	 
+				  self.Background:SetTexture(0.5, 0.5, 1, 0.7)
+                  LD_ToolTip.TxtName:SetText(AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["NOMBRE"] .. 
+				     " " .. AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["APELLIDO"])
+				  if AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["APP"] == "A" then
+                     LD_ToolTip.TxtDesc:SetText(AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["HIST2"])
+			      else		 
+                     LD_ToolTip.TxtDesc:SetText("(Historia por aprobar)")
+				  end	 
+                  LD_ToolTip:Show()		 
+               end)		 
+			LD_RaidFrame.Slots[Index]:SetScript("OnLeave" , 
+			   function (self)
+			      self:SetAlpha(1)
+				  self.Background:SetTexture(0.5, 0.5, 1, 0)
+                  LD_ToolTip:Hide()		 
+               end)		 
+         end
 		 if Conn == "false" then
-		    LD_RaidFrame.Slots[Index]:SetTextColor(0.5,0.5,0.5,0.5)
+		    LD_RaidFrame.Slots[Index].Txt:SetTextColor(0.5,0.5,0.5,0.5)
 		 else	
-		    LD_RaidFrame.Slots[Index]:SetTextColor(0,1,0,1)
+		    LD_RaidFrame.Slots[Index].Txt:SetTextColor(0,1,0,1)
+			LD_RaidFrame.Slots[Index]:SetScript("OnClick", function(self, button, down)
+                   -- EasyMenu(LD_RaidFrame.menu, self, self, 0 , 0, "MENU");
+            end)
 		 end
  		 if not LD_RaidFrame:IsVisible() then
             LD_RaidFrame:Show()
@@ -411,6 +458,23 @@ else
 		 AIO_LD_CONFIG[LD_Type][LD_Index] = LD_Value
 		 -- print ("DEBUG: AIO_LD_CONFIG[" .. LD_Type .. "][" .. LD_Index .. "] = " .. LD_Value )
 
+	 elseif LD_Head == "LDGEN" then -- DATOS GENERALES DEL SERVER
+	     -- print ("DEBUG: " .. msg )
+	     local LD_Pj    = LD_AllFlds[2]
+	     local LD_Index = LD_AllFlds[3]
+	     local LD_Type  = LD_AllFlds[4]
+		 local LD_Value = LD_AllFlds[5]
+		 if AIO_LD_CONFIG["DATA"] == nil then
+		    AIO_LD_CONFIG["DATA"] = {}
+		 end
+		 if AIO_LD_CONFIG["DATA"][LD_Pj] == nil then
+		    AIO_LD_CONFIG["DATA"][LD_Pj] = {}
+		 end
+		 if AIO_LD_CONFIG["DATA"][LD_Pj][LD_Type] == nil then
+		    AIO_LD_CONFIG["DATA"][LD_Pj][LD_Type] = {}
+		 end
+		 AIO_LD_CONFIG["DATA"][LD_Pj][LD_Type][LD_Index] = LD_Value
+         -- LD_ServerDebug("AIO_LD_CONFIG[DATA]["..LD_Pj.."]["..LD_Type.."]["..LD_Index.."] = " ..LD_Value)
 
 	 elseif LD_Head == "LDDAT" then -- DATOS GENERALES
 	     local LD_Index    = LD_AllFlds[2]
@@ -497,6 +561,10 @@ else
 		 elseif LD_AllFlds[3] == "SHOW" then
 			LD_ApproFrame:Show()
          end
+      elseif LD_Head == "OPCMT" then -- ABRIR COMBATE
+		 OpenCombat()
+      elseif LD_Head == "CLCMT" then -- ABRIR COMBATE
+		 CloseCombat()
 	  else
 	     LD_ServerDebug ("Client, unhandled message: " .. msg )
       end

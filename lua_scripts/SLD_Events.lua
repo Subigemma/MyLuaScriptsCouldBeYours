@@ -1,5 +1,7 @@
 local AIO = AIO or require("AIO")
 local SLD_LIB = SLD_LIB or require("SLD_LIB")
+local SLD_MasterBar = SLD_MasterBar or require("SLD_MasterBar")
+
 assert(not SLD_Events, "SLD_Events is already loaded. Possibly different versions!")
 -- SLD_Events main table
 SLD_Events =
@@ -68,6 +70,7 @@ if not AIO.AddAddon() then
        print ("/pvemode /modopve -> Desactiva el modo rol y tienes la aburrida y clásica Interface de Wow")
        print ("/naked /desnudo -> Si no eres un pervertido y no te gusta ver a la gente desnuda usa este comando (varias veces hasta que se arregle)")
        print ("/talk /habla -> Este comando hará que el NPC que tengas seleccionado diga lo que pongas a continuación")
+       print ("/nem /nmm -> Este comando hará que el NPC que tengas seleccionado diga lo que escribas a continuación como emoción")
        print ("/history /historia -> Permite modificar la historia de tu personaje, si la modificas no podras usar las facilidades de rol hasta que se vuelva a aprobar")
     end 
 
@@ -95,6 +98,21 @@ if not AIO.AddAddon() then
 	   end
 	   MyUnitGUID = UnitGUID("target")
        LDSendMsg("NPSAY#" .. 
+	             string.sub(MyUnitGUID,3) .. 
+				 "#" .. string.sub(MyUnitGUID, -6, -1) .. 
+				 "#" .. string.sub(MyUnitGUID, -12, -7) .. 
+				 "#" .. msg) 
+    end 
+
+	SLASH_NPEMT1 = "/nem"
+    SLASH_NPEMT2 = "/nmm"
+    SlashCmdList["NPEMT"] = function(msg)
+	   if UnitGUID("target") == nil or UnitIsPlayer("target") then
+	      print ("Debes seleccionar un NPC primero")
+		  return
+	   end
+	   MyUnitGUID = UnitGUID("target")
+       LDSendMsg("NPEMT#" .. 
 	             string.sub(MyUnitGUID,3) .. 
 				 "#" .. string.sub(MyUnitGUID, -6, -1) .. 
 				 "#" .. string.sub(MyUnitGUID, -12, -7) .. 
@@ -130,6 +148,16 @@ if not AIO.AddAddon() then
 		  return
 	   end
        LDSendMsg("HIDPJ#" .. msg )	   
+    end 
+
+	SLASH_MFR1 = "/mfr"
+    SLASH_MFR2 = "/mmc"
+    SlashCmdList["MFR"] = function(msg)
+	   if LD_MasterFrame:IsVisible() then
+	      LD_MasterFrame:Hide()
+	   else
+	      LD_MasterFrame:Show()
+	   end
     end 
 
 else   

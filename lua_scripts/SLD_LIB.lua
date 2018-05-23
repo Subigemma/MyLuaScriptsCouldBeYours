@@ -307,6 +307,7 @@ else
 	  return MyList
    end
    function LD_CheckPjGroup ( player )
+      SLD_LoadData(player)
       local MyGrp = player:GetGroup()
       if MyGrp == nil then
          AIO.Msg():Add("LDMsg", "LDNOG#SYS" ):Send(player)
@@ -317,24 +318,30 @@ else
       local NumGrPj = MyGrp:GetMembersCount()
 	  local MyPlayer = nil
 	  local MyPlayerName = ""
+	  
 	  for k in pairs(MyGrpMembers) do
 	     MyPlayerName = LD_GetPjNameByID(MyGrpMembers[k])
 		 MyPlayer = GetPlayerByName(MyPlayerName)
 	     PrintInfo("[DEBUG]LD_CheckPjGroup[" .. MyPlayerName .. "][" .. tostring(MyGrpMembers[k]) .. "] Lead:" .. tostring(MyleaderGUID))
 		 if MyPlayer == nil then 
-		    if MyGrpMembers[k] == MyleaderGUID then
-               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. " (L)#" .. tostring(k) .. "#false#N#" ):Send(player)
+		    if MyGrp:IsLeader(MyGrpMembers[k]) then
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#false#L#" ):Send(player)
+			elseif MyGrp:IsAssistant( MyGrpMembers[k] ) then
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#false#A#" ):Send(player)
 			else
                AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#false#N#" ):Send(player)
 			end
 		 else	
-		    if MyGrpMembers[k] == MyleaderGUID then
-               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. " (L)#" .. tostring(k) .. "#true#N#" ):Send(player)
+		    if MyGrp:IsLeader(MyGrpMembers[k]) then
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#true#L#" ):Send(player)
+			elseif MyGrp:IsAssistant( MyGrpMembers[k] ) then
+               AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#true#A#" ):Send(player)
 			else
                AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#true#N#" ):Send(player)
 			end
 		 end
 	  end
+	  
       for LoopVar=NumGrPj+1,20 do
          AIO.Msg():Add("LDMsg", "LDGRM#VOID#" .. 
 		    tostring(LoopVar) .. "#VOID#VOID" ):Send(player)
