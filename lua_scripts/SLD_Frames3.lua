@@ -134,6 +134,7 @@ end
 LD_FoeFrame:Hide()
 
 function OpenCombat()
+   LDSendMsg("ROLMD#" .. UnitName("player") .. "#WORLD")
    LD_ROLFrame.AlertZone.TxtAlert:SetText("EN COMBATE")
    LD_ROLFrame:Show()
    LD_FoeFrame:Show()

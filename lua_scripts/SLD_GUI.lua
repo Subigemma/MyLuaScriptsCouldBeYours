@@ -6,6 +6,10 @@ local SLD_Frames2 = SLD_Frames2 or require("SLD_Frames2")
 local SLD_Frames3 = SLD_Frames3 or require("SLD_Frames3")
 local SLD_Macros = SLD_Macros or require("SLD_Macros")
 local SLD_Data = SLD_Data or require("SLD_Data")
+local SLD_Hability = SLD_Hability or require("SLD_Hability")
+
+local SLD_Player = SLD_Player or require("LD_Player")
+local SLD_AttrFrame = SLD_AttrFrame or require("LD_AttrFrame")
 
 local HandleLDMsg
 
@@ -49,6 +53,11 @@ if AIO.AddAddon() then
       elseif LD_Head == "HELLO" then -- PERSONAJE ENTRA AL MUNDO
 	     SLD_LoadData(player)
 		 LD_SavePjPlayer ( LD_Table[2], player:GetAccountName() )
+		 AIO.Msg():Add("LDMsg",SLD_Player:SelectAttributes(LD_Table[2])):Send(player)
+		 AIO.Msg():Add("LDMsg",SLD_Player:SelectRolVars(LD_Table[2])):Send(player)
+		 AIO.Msg():Add("LDMsg",SLD_Player:SelectDiceVars(LD_Table[2])):Send(player)
+		 AIO.Msg():Add("LDMsg","SETACCOUNT#" .. LD_Table[2] .. "#" .. player:GetAccountName()):Send(player)
+		 
 		 
       elseif LD_Head == "ROLMD" then -- PERSONAJE EN MODO ROL
          AIO.Msg():Add("LDMsg", "ROLMD#A#A"):Send(player) 
@@ -175,6 +184,18 @@ if AIO.AddAddon() then
 						  Teleports[MyLD_Index]["position_y"], 
 						  Teleports[MyLD_Index]["position_z"], 
 						  Teleports[MyLD_Index]["orientation"] )
+      --
+      -- NEW MSG HANDLING
+      --	  
+      elseif LD_Head == "SELECTATTR" then -- OBTENER ATRIBUTOS DE UN PJ
+	     local MyStr = SLD_Player:SelectAttributes(LD_Table[2])
+		 AIO.Msg():Add("LDMsg", MyStr ):Send(player)
+         -- PrintInfo("[INFO]SELECTATTR:[" .. MyStr .."]")
+
+      elseif LD_Head == "SELECTROL" then -- OBTENER VARIABLES DE ROL DE UN PJ
+	     local MyStr = SLD_Player:SelectRolVars(LD_Table[2])
+		 AIO.Msg():Add("LDMsg", MyStr ):Send(player)
+		 
       else
          PrintInfo("[INFO]HandleLDMsg:114 Unhandled Message:[" .. msg .."]")
       end
@@ -258,7 +279,7 @@ else
 	     LD_ClearRAID()
 		 LD_RaidFrame:Hide()
       elseif (LD_Head == "LDGRM") then -- FILL RAID
-	     LD_ServerDebug ( msg )
+	     -- LD_ServerDebug ( msg )
 	     local Name = LD_Pj
 		 local Index = tonumber(LD_Body)
 		 local Conn = LD_AllFlds[4]
@@ -348,12 +369,9 @@ else
 		 SysPrint ("Modo PVE activado")
 		 
       elseif (LD_Head == "ROLMD") then -- MODO ROL
-         if AIO_LD_CONFIG["ROL"] == nil then
-		    AIO_LD_CONFIG["ROL"] = {}
-		 end
-         if AIO_LD_CONFIG["ROL"]["PATTR"] == nil then
-            AIO_LD_CONFIG["ROL"]["PATTR"] = 6
-			LD_SetPjVar("ROL", "PATTR", 6 , 0)
+	     if SLD_Player.App ~= "A" then
+		    print ("Tu ficha no ha sido aprobada todavia\n Habla con un GM para que sea aprobada y puedas entrar al modo ROL")
+			return
 		 end
    	     if AIO_LD_CONFIG["ATRIBUTO"] == nil then
             local MyRaceLoc, MyRace = UnitRace("player")
@@ -563,8 +581,25 @@ else
          end
       elseif LD_Head == "OPCMT" then -- ABRIR COMBATE
 		 OpenCombat()
-      elseif LD_Head == "CLCMT" then -- ABRIR COMBATE
+      elseif LD_Head == "CLCMT" then -- CERRAR COMBATE
 		 CloseCombat()
+      --
+      -- NEW MSG HANDLING
+      --	  
+	  
+	  -- LD_Player
+      elseif LD_Head == "SETALLATTR" then  -- OBTENER ATRIBUTOS DE UN PJ
+	     SLD_Player:GetAttributes(msg)
+
+	  elseif LD_Head == "SETALLROL" then   -- OBTENER VARIABLES DE ROL DE UN PJ
+	     SLD_Player:GetRolVars(msg)
+
+      elseif LD_Head == "SETDICEVARS" then -- OBTENER VARIABLES DE DADOS/SAY DE UN PJ
+		 SLD_Player:GetDiceVars(msg)
+		 
+      elseif LD_Head == "SETACCOUNT" then  -- CUENTA ASOCIADA AL PJ
+		 SLD_Player:GetAccount(LD_AllFlds[3])
+		 
 	  else
 	     LD_ServerDebug ("Client, unhandled message: " .. msg )
       end

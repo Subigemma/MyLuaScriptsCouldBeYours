@@ -92,9 +92,6 @@ LD_MacroFrame:SetScript("OnShow",
       LD_MacroFrame.MyIcons["S"].MyT:SetTexture(GetActionTexture(12))
    end)
 else
-   --
-   -- CARGA DE DATOS MASIVA
-   --
    
    PrintInfo("SLD Macros Loaded ...")
 end

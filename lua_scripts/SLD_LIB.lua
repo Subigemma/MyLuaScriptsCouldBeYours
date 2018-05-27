@@ -13,6 +13,8 @@ if not AIO.AddAddon() then
        senttime = time()
        AIO.Msg():Add("LDMsg", Msg):Send()
    end
+   -- LDSendMsg( "SELECTATTR#Irma#" )
+   -- LDSendMsg( "SELECTROL#Irma#" )
    --
    -- VARIABLES GLOBALES
    --
@@ -322,7 +324,7 @@ else
 	  for k in pairs(MyGrpMembers) do
 	     MyPlayerName = LD_GetPjNameByID(MyGrpMembers[k])
 		 MyPlayer = GetPlayerByName(MyPlayerName)
-	     PrintInfo("[DEBUG]LD_CheckPjGroup[" .. MyPlayerName .. "][" .. tostring(MyGrpMembers[k]) .. "] Lead:" .. tostring(MyleaderGUID))
+	     -- PrintInfo("[DEBUG]LD_CheckPjGroup[" .. MyPlayerName .. "][" .. tostring(MyGrpMembers[k]) .. "] Lead:" .. tostring(MyleaderGUID))
 		 if MyPlayer == nil then 
 		    if MyGrp:IsLeader(MyGrpMembers[k]) then
                AIO.Msg():Add("LDMsg", "LDGRM#" .. MyPlayerName .. "#" .. tostring(k) .. "#false#L#" ):Send(player)
@@ -351,16 +353,15 @@ else
       
       local MyGrp = player:GetGroup()
       if MyGrp == nil then
-         PrintInfo("[DEBUG]SendMsgGroup:(No Group)[" .. msg .. "]")
          AIO.Msg():Add("LDMsg", msg ):Send(player)
          return
       end
       local GrPj = MyGrp:GetMembers()
       local NumGrPj = MyGrp:GetMembersCount()
-      -- PrintInfo("[DEBUG]SendMsgGroup:847[" .. tostring(MyGrp) .. "][" .. tostring(NumGrPj) .."]")
       for LoopVar=1,NumGrPj do
-         AIO.Msg():Add("LDMsg", msg ):Send(GrPj[LoopVar])
-         -- PrintInfo("[DEBUG]SendMsgGroup:31[" .. tostring(GrPj[LoopVar]:GetAccountName()) .. "]Sending")
+	     if GrPj[LoopVar] ~= nil then
+            AIO.Msg():Add("LDMsg", msg ):Send(GrPj[LoopVar])
+		 end	
       end
    end
    

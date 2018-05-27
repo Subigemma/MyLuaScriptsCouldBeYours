@@ -133,6 +133,68 @@ if not AIO.AddAddon() then
       self:SetText("")
       self:ClearFocus()	  
       end)
+   LD_MasterFrame.OpenCombat = LD_ButtonFrame ( 5, 20, LD_MasterFrame, "Interface\\ICONS\\ability_warrior_charge" )
+   LD_MasterFrame.OpenCombat:SetScript("OnEnter", function(self)
+      self:SetAlpha(1) 
+      GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+      GameTooltip:AddLine("|cff00ffff Abrir combate");
+	  GameTooltip:Show()
+	  end)
+   LD_MasterFrame.OpenCombat:SetScript("OnLeave", function(self)
+	  self:SetAlpha(0.5) 
+      GameTooltip:Hide()
+	  end)
+   LD_MasterFrame.OpenCombat:SetScript("OnClick", function(self)
+      LDSendMsg("OPCMT#OPCMT")
+	  end)
+	  
+   LD_MasterFrame.CloseCombat = LD_ButtonFrame ( 35, 20, LD_MasterFrame, "Interface\\ICONS\\ability_seal" )
+   LD_MasterFrame.CloseCombat:SetScript("OnEnter", function(self)
+      self:SetAlpha(1) 
+      GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+      GameTooltip:AddLine("|cff00ffff Cerrar combate");
+	  GameTooltip:Show()
+	  end)
+   LD_MasterFrame.CloseCombat:SetScript("OnLeave", function(self)
+	  self:SetAlpha(0.5) 
+      GameTooltip:Hide()
+	  end)
+   LD_MasterFrame.CloseCombat:SetScript("OnClick", function(self)
+      LDSendMsg("CLCMT#CLCMT")
+	  end)
+	  
+   LD_MasterFrame.FoeList = LD_ButtonFrame ( 65, 20, LD_MasterFrame, "Interface\\ICONS\\ability_warrior_rampage" )
+   LD_MasterFrame.FoeList:SetScript("OnEnter", function(self)
+      self:SetAlpha(1) 
+      GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+      GameTooltip:AddLine("|cff00ffff Lista de enemigos");
+	  GameTooltip:Show()
+	  end)
+   LD_MasterFrame.FoeList:SetScript("OnLeave", function(self)
+	  self:SetAlpha(0.5) 
+      GameTooltip:Hide()
+	  end)
+   LD_MasterFrame.FoeList:SetScript("OnClick", function(self)
+      print("Calma campeón, que todavia me quedan cosas por hacer")
+	  end)
+	  
+   LD_MasterFrame.Iniciativa = LD_ButtonFrame ( 95, 20, LD_MasterFrame, "Interface\\ICONS\\ability_rogue_sprint" )
+   LD_MasterFrame.Iniciativa:SetScript("OnEnter", function(self)
+      self:SetAlpha(1) 
+      GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+      GameTooltip:AddLine("|cff00ffff Iniciativa");
+	  GameTooltip:Show()
+	  end)
+   LD_MasterFrame.Iniciativa:SetScript("OnLeave", function(self)
+	  self:SetAlpha(0.5) 
+      GameTooltip:Hide()
+	  end)
+   LD_MasterFrame.Iniciativa:SetScript("OnClick", function(self)
+      print("Calma campeón, que todavia me quedan cosas por hacer")
+	  end)
+	  
+	  
+
    LD_MasterFrame:Hide()	  
 else
    PrintInfo("SLD Master Bar Loaded ...")
