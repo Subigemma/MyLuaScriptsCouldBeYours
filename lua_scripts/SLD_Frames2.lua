@@ -1,7 +1,6 @@
 local AIO = AIO or require("AIO")
 local SLD_LIB = SLD_LIB or require("SLD_LIB")
 local SLD_Frames = SLD_Frames or require("SLD_Frames")
-local SLD_Frames3 = SLD_Frames or require("SLD_Frames3")
 
 assert(not SLD_Frames2, "SLD_Frames2 is already loaded. Possibly different versions!")
 -- SLD_Frames main table
@@ -159,117 +158,6 @@ LD_ApproFrame:Hide()
 --
 -- BARRAS
 --
-LD_StatusBars=CreateFrame ( "Frame", "LD_StatusBars", UIParent )
-LD_StatusBars:SetSize(550, 60)
-LD_StatusBars:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 0)
-LD_StatusBars.MyTitle = LD_StatusBars:CreateTitleRegion()
-LD_StatusBars.MyTitle:SetSize(550, 60) 
-LD_StatusBars.MyTitle:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 0, 0)
--- LD_StatusBars:EnableMouse(true)
--- LD_StatusBars:SetMovable(false)
-
-LD_StatusBars.HPBar = CreateFrame("StatusBar", nil, LD_StatusBars)
-LD_StatusBars.HPBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-LD_StatusBars.HPBar:GetStatusBarTexture():SetHorizTile(true)
-LD_StatusBars.HPBar:SetWidth(500)
-LD_StatusBars.HPBar:SetHeight(10)
-LD_StatusBars.HPBar:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 10, -10)
-LD_StatusBars.HPBar:SetStatusBarColor(0,1,0)
-LD_StatusBars.HPBar:SetMinMaxValues(0, 500)
-LD_StatusBars.HPBar:SetValue(300)
-LD_StatusBars.HPBar:SetAlpha(0.6)
-LD_StatusBars.HPBar:EnableMouse(true)
-
-LD_StatusBars.EPBar = CreateFrame("StatusBar", nil, LD_StatusBars)
-LD_StatusBars.EPBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-LD_StatusBars.EPBar:GetStatusBarTexture():SetHorizTile(true)
-LD_StatusBars.EPBar:SetWidth(500)
-LD_StatusBars.EPBar:SetHeight(10)
-LD_StatusBars.EPBar:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 10, -25)
-LD_StatusBars.EPBar:SetStatusBarColor(1,1,0)
-LD_StatusBars.EPBar:SetMinMaxValues(0, 500)
-LD_StatusBars.EPBar:SetValue(300)
-LD_StatusBars.EPBar:SetAlpha(0.6)
-LD_StatusBars.EPBar:EnableMouse(true)
-
-LD_StatusBars.MPBar = CreateFrame("StatusBar", nil, LD_StatusBars)
-LD_StatusBars.MPBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-LD_StatusBars.MPBar:GetStatusBarTexture():SetHorizTile(true)
-LD_StatusBars.MPBar:SetWidth(500)
-LD_StatusBars.MPBar:SetHeight(10)
-LD_StatusBars.MPBar:SetPoint("TOPLEFT", LD_StatusBars, "TOPLEFT", 10, -40)
-LD_StatusBars.MPBar:SetStatusBarColor(0,0,1)
-LD_StatusBars.MPBar:SetMinMaxValues(0, 500)
-LD_StatusBars.MPBar:SetValue(300)
-LD_StatusBars.MPBar:SetAlpha(0.6)
-LD_StatusBars.MPBar:EnableMouse(true)
-
-LD_StatusBars:Hide()
-function LD_RefreshBars()
-   AIO_LD_CONFIG["HP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["CONSTI"]) * 1.7 ) + (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 1.3 )
-   AIO_LD_CONFIG["HP"] = AIO_LD_CONFIG["HP"] * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVHP"]
-   LD_StatusBars.HPBar:SetValue(AIO_LD_CONFIG["HP"]*3)   
-   AIO_LD_CONFIG["EP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["CONSTI"]) * 1.4) + 
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["AGILID"]) * 1.2 ) +
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 1.2 ) +
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["FUERZA"]) * 1.2 ) 
-   AIO_LD_CONFIG["EP"] = AIO_LD_CONFIG["EP"] * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVEP"]
-   LD_StatusBars.EPBar:SetValue(AIO_LD_CONFIG["EP"]*3)   
-
-   AIO_LD_CONFIG["MP"] = (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["SABIDU"]) * 1.7 ) + 
-                 (tonumber(AIO_LD_CONFIG["ATRIBUTO"]["INTELE"]) * 1.3 ) 
-   AIO_LD_CONFIG["MP"] = AIO_LD_CONFIG["MP"] * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVMP"]
-   LD_StatusBars.MPBar:SetValue(AIO_LD_CONFIG["MP"]*3)   
-end
-
-LD_StatusBars.HPBar:SetScript("OnEnter", 
-function(self) 
-   self:SetAlpha(1) 
-   GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-   GameTooltip:AddLine("Barra de puntos de Vida (HP = " .. tostring(AIO_LD_CONFIG["HP"]) ..")")
-   GameTooltip:Show();		 
-end)
-LD_StatusBars.HPBar:SetScript("OnLeave", 
-function(self) 
-   self:SetAlpha(0.6) 
-   GameTooltip:Hide();
-end)
-LD_StatusBars.EPBar:SetScript("OnEnter", 
-function(self) 
-   self:SetAlpha(1) 
-   GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-   GameTooltip:AddLine("Barra de puntos de Energía (EP = " .. tostring(AIO_LD_CONFIG["EP"]) ..")")
-   GameTooltip:Show();		 
-end)
-LD_StatusBars.EPBar:SetScript("OnLeave", 
-function(self) 
-   self:SetAlpha(0.6) 
-   GameTooltip:Hide();
-end)
-LD_StatusBars.MPBar:SetScript("OnEnter", 
-function(self) 
-   self:SetAlpha(1) 
-   GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-   GameTooltip:AddLine("Barra de puntos de Maná (MP = " .. tostring(AIO_LD_CONFIG["MP"]) ..")")
-   GameTooltip:Show();		 
-end)
-LD_StatusBars.MPBar:SetScript("OnLeave", 
-function(self) 
-   self:SetAlpha(0.6) 
-   GameTooltip:Hide();
-end)
-LD_StatusBars:SetScript("OnShow",
-function (self)
-   if AIO_LD_CONFIG["ROL"]["APP"] == nil then
-      self:Hide()
-	  return
-   end
-   if AIO_LD_CONFIG["ROL"]["APP"] ~= "A" then
-      self:Hide()
-	  return
-   end
-   LD_RefreshBars()
-end)
 
 StaticPopupDialogs["CONFIRM_HISTORY"] = {
   text = "Enviando esta peticion, el estado del personaje volverá a 'datos de rol pendientes'. ¿Estas seguro?",
@@ -359,7 +247,6 @@ StaticPopupDialogs["CONFIRM_ATTR"] = {
 	  SysPrint ( "Has ganado 1 punto de " .. LD_AttrVendFrame.AttrDesc)
 	  LD_ATRFrame:Show()
 	  LD_RefreshBars()
-	  -- print ( "¡¡MENTIRA!! todavia no está terminado lo de la compra de atributos")
   end,
   timeout = 0,
   whileDead = true,

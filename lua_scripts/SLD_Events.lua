@@ -54,6 +54,26 @@ if not AIO.AddAddon() then
 	     LDSendMsg("LDPMF#" .. UnitName("player"))
       elseif event == "PLAYER_LEAVING_WORLD" then	 
 	     LDSendMsg("LDPMF#" .. UnitName("player"))
+      elseif event == "CHANNEL_VOICE_UPDATE" or 
+	         event == "SPELL_UPDATE_USABLE" then
+		 if not SLD_Player.IsOnrol then
+		    return
+		 end
+	     if SLD_Player.TopENER > SLD_Player.ENER then
+		    SLD_Player.ENER = SLD_Player.ENER + 0.5
+			LD_RefreshBars()
+			SLD_Player:SetPjVar ( "ATRIBUTO", "ENER", SLD_Player.ENER, true )
+		 end
+	     if SLD_Player.TopVIDA > SLD_Player.VIDA then
+		    SLD_Player.VIDA = SLD_Player.VIDA + 0.5
+			SLD_Player:SetPjVar ( "ATRIBUTO", "VIDA", SLD_Player.VIDA, true )
+			LD_RefreshBars()
+		 end
+	     if SLD_Player.TopMANA > SLD_Player.MANA then
+		    SLD_Player.MANA = SLD_Player.MANA + 0.5
+			SLD_Player:SetPjVar ( "ATRIBUTO", "MANA", SLD_Player.MANA, true )
+			LD_RefreshBars()
+		 end
       end
 	  
    end	  

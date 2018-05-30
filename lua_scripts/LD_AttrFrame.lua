@@ -85,5 +85,5 @@ LD_ATRFrame:SetScript ("OnShow", function(self)
    LD_ATRFrame.MyHist2B:SetText(SLD_Player.Hist2)
    end)	
 else
-   PrintInfo("LD_ATRFrame Loaded ...")
+   PrintInfo("LD_AttrFrame Loaded ...")
 end

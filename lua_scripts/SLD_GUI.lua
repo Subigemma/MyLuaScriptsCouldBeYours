@@ -3,13 +3,15 @@ local SLD_LIB = SLD_LIB or require("SLD_LIB")
 local SLD_Events = SLD_Events or require("SLD_Events")
 local SLD_Frames = SLD_Frames or require("SLD_Frames")
 local SLD_Frames2 = SLD_Frames2 or require("SLD_Frames2")
-local SLD_Frames3 = SLD_Frames3 or require("SLD_Frames3")
 local SLD_Macros = SLD_Macros or require("SLD_Macros")
 local SLD_Data = SLD_Data or require("SLD_Data")
-local SLD_Hability = SLD_Hability or require("SLD_Hability")
 
 local SLD_Player = SLD_Player or require("LD_Player")
 local SLD_AttrFrame = SLD_AttrFrame or require("LD_AttrFrame")
+local SLD_RolFrame = SLD_RolFrame or require("LD_RolFrame")
+local SLD_MainFrame = SLD_MainFrame or require("LD_MainFrame")
+local SLD_Hability = SLD_Hability or require("LD_Hability")
+local SLD_RaidFrame = SLD_RaidFrame or require("LD_RaidFrame")
 
 local HandleLDMsg
 
@@ -33,7 +35,7 @@ if AIO.AddAddon() then
 		 SendMsgGroup(player, "CLCMT#CLCMT#")
 		 
       elseif LD_Head == "DICAT" then  -- DADOS DE ATRIBUTO
-         PrintInfo("[INFO]HandleLDMsg:DICAT:[" .. player:GetAccountName() .. "]" ..  msg )
+         -- PrintInfo("[INFO]HandleLDMsg:DICAT:[" .. player:GetAccountName() .. "]" ..  msg )
 	     local Atributo = LD_Table[3]
 		 local Suma     = LD_Table[4]
 		 local Resta    = LD_Table[5]
@@ -57,6 +59,7 @@ if AIO.AddAddon() then
 		 AIO.Msg():Add("LDMsg",SLD_Player:SelectRolVars(LD_Table[2])):Send(player)
 		 AIO.Msg():Add("LDMsg",SLD_Player:SelectDiceVars(LD_Table[2])):Send(player)
 		 AIO.Msg():Add("LDMsg","SETACCOUNT#" .. LD_Table[2] .. "#" .. player:GetAccountName()):Send(player)
+		 LD_GetHabilities(player)
 		 
 		 
       elseif LD_Head == "ROLMD" then -- PERSONAJE EN MODO ROL
@@ -195,6 +198,18 @@ if AIO.AddAddon() then
       elseif LD_Head == "SELECTROL" then -- OBTENER VARIABLES DE ROL DE UN PJ
 	     local MyStr = SLD_Player:SelectRolVars(LD_Table[2])
 		 AIO.Msg():Add("LDMsg", MyStr ):Send(player)
+
+      elseif LD_Head == "SAVEPJVAR" then -- OBTENER VARIABLES DE ROL DE UN PJ
+	     -- PrintInfo("[INFO]HandleLDMsg:SAVEPJVAR :[" .. msg .."]")
+	     local MyStr = SLD_Player:SetPjVar(LD_Table[2],LD_Table[3],LD_Table[4],LD_Table[5])
+		 
+      elseif LD_Head == "SYSTXTTOPJ" then -- ENVIAR UN TEXTO DE SISTEMA A UN PJ
+	     -- PrintInfo("[INFO]HandleLDMsg:SYSTXTTOPJ :[" .. msg .."]")
+		 local DesPlayer = GetPlayerByName( LD_Table[2] )
+		 AIO.Msg():Add("LDMsg", "SYSTXTTOPJ#" .. LD_Table[2] .. "#" .. LD_Table[3] ):Send(DesPlayer)
+
+	  elseif LD_Head == "LAUNCHHAB" then  -- DADOS DE HABILIDAD TIPO 1
+		 SLD_Hability.FunctionTypes[LD_Head .. LD_Body]( player, msg)
 		 
       else
          PrintInfo("[INFO]HandleLDMsg:114 Unhandled Message:[" .. msg .."]")
@@ -327,11 +342,13 @@ else
             LD_RaidFrame:Show()
          end   
       elseif (LD_Head == "PVEMD") then -- MODO PVE
-         AIO_LD_CONFIG["ROLMODE"] = false
+         SLD_Player.IsOnrol = false
+
 		 TimeManagerClockButton:SetParent(CLK_f)
 		 TimeManagerClockButton:SetPoint(CLK_p, CLK_f, CLK_r, CLK_x, CLK_y)
-		 LD_RolFrame:Hide()
+		 LD_MainFrame:Hide()
 		 LD_ATRFrame:Hide()
+		 LD_ROLFrame:Hide()
 		 LD_MacroFrame:Hide()
 		 LD_StatusBars:Hide()
 		 MainMenuBar:SetParent(Saved_relativeTo)
@@ -392,10 +409,10 @@ else
             LD_SetPjVar ( "PERCEP", "ATRIBUTO", 5, 0 )
          end
 
-         AIO_LD_CONFIG["ROLMODE"] = true
-		 LD_RolFrame = LD_SetMainFrame()
-		 TimeManagerClockButton:SetParent(LD_RolFrame)
-		 TimeManagerClockButton:SetPoint("TOPLEFT", LD_RolFrame, "TOPLEFT", 0, 10)
+         SLD_Player.IsOnrol = true
+		 LD_MainFrame:Show()
+		 TimeManagerClockButton:SetParent(LD_MainFrame)
+		 TimeManagerClockButton:SetPoint("TOPLEFT", LD_MainFrame, "TOPLEFT", 0, 10)
          LD_StatusBars:Show()
 		 MainMenuBar:SetParent(LD_DummyFrame)
 	     MainMenuBar:SetPoint(Saved_point, 
@@ -599,7 +616,40 @@ else
 		 
       elseif LD_Head == "SETACCOUNT" then  -- CUENTA ASOCIADA AL PJ
 		 SLD_Player:GetAccount(LD_AllFlds[3])
-		 
+
+      elseif LD_Head == "SYSTXTTOPJ" then -- ENVIAR UN TEXTO DE SISTEMA A UN PJ
+		 SysPrint(LD_AllFlds[3])
+
+      elseif LD_Head == "PJHABILITY" then -- AÑADIR HABILIDAD A PJ
+		 SLD_Player.Habilidades[LD_AllFlds[2]] = SLD_Hability:New(msg)
+		 for i = 0,19 do
+		    if SLD_HabilityFrame.HabID[i+1] == 0 then
+			   SLD_HabilityFrame.HabID[i+1] = SLD_Player.Habilidades[LD_AllFlds[2]].ID
+			   SLD_HabilityFrame.Buttons[i+1] = LD_ButtonFrame ( 10+(i*30), 10, SLD_HabilityFrame,"Interface\\ICONS\\" .. SLD_Player.Habilidades[LD_AllFlds[2]].Icono)
+			   SLD_HabilityFrame.Buttons[i+1]:SetScript( "OnEnter" , 
+			      function(self) 
+                     self:SetAlpha(1) 
+                     GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+                     GameTooltip:AddLine("|cff00ffff" .. SLD_Player.Habilidades[LD_AllFlds[2]].Nom .. 
+				     " (Rango " .. tostring (SLD_Player.Habilidades[LD_AllFlds[2]].Leveau) .. ")");
+	                 GameTooltip:Show()
+                  end)
+               SLD_HabilityFrame.Buttons[i+1]:SetScript("OnLeave", 
+                  function(self) 
+                     self:SetAlpha(0.5) 
+                     GameTooltip:Hide()
+                  end)
+               SLD_HabilityFrame.Buttons[i+1]:SetScript("OnClick", 
+                  function(self) 
+				     local MyIndex = SLD_Player.Habilidades[LD_AllFlds[2]].FunctionType
+					 local MyHability = SLD_Player.Habilidades[LD_AllFlds[2]]
+				     SLD_Hability.FunctionTypes[MyIndex](MyHability)
+				  end)
+			   return
+			end
+         end
+      elseif LD_Head == "PJONATACK" then -- PJ EN ATAQUE
+	  
 	  else
 	     LD_ServerDebug ("Client, unhandled message: " .. msg )
       end
@@ -617,6 +667,8 @@ else
    LD_DummyFrame:RegisterEvent("TARGET_UNIT")
    LD_DummyFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
    LD_DummyFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
+   LD_DummyFrame:RegisterEvent("CHANNEL_VOICE_UPDATE")
+   LD_DummyFrame:RegisterEvent("SPELL_UPDATE_USABLE")
    LD_DummyFrame:SetScript("OnEvent", LDDummy_OnEvent)
   
 

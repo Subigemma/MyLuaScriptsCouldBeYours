@@ -2,7 +2,6 @@ local AIO = AIO or require("AIO")
 local SLD_LIB = SLD_LIB or require("SLD_LIB")
 local SLD_Frames = SLD_Frames or require("SLD_Frames")
 local SLD_Frames2 = SLD_Frames2 or require("SLD_Frames2")
-local SLD_Frames3 = SLD_Frames3 or require("SLD_Frames3")
 
 assert(not SLD_MasterBar, "SLD_MasterBar is already loaded. Possibly different versions!")
 -- SLD_Frames main table
@@ -17,9 +16,9 @@ SLD_MasterBar =
 local SLD_MasterBar = SLD_MasterBar
 if not AIO.AddAddon() then
    LD_MasterFrame = CreateFrame ( "Frame", "LD_MasterFrame", UIParent )
-   LD_MasterFrame:SetSize(320, 240)
+   LD_MasterFrame:SetSize(320, 300)
    LD_MasterFrame.MyTitle = LD_MasterFrame:CreateTitleRegion()
-   LD_MasterFrame.MyTitle:SetSize(320, 240) 
+   LD_MasterFrame.MyTitle:SetSize(320, 300) 
    LD_MasterFrame.MyTitle:SetPoint("TOPLEFT", LD_MasterFrame, "TOPLEFT", 0, 0)   
    LD_MasterFrame:SetPoint("TOPRIGHT", -40, -170)
    LD_MasterFrame:SetMovable(true)
@@ -28,7 +27,7 @@ if not AIO.AddAddon() then
    LD_MasterFrameBackground:SetTexture(0, 1, 1, 0.1)
    LD_MasterFrameBackground:SetAllPoints()
 
-   LD_MasterFrame.NPC1B = LD_ButtonFrame ( 5, 210, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
+   LD_MasterFrame.NPC1B = LD_ButtonFrame ( 5, 270, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
    LD_MasterFrame.NPC1B:SetScript("OnClick", function ()
       if UnitName("target") == nil then
 	     return
@@ -53,7 +52,7 @@ if not AIO.AddAddon() then
       LD_MasterFrame.NPC1T:SetText("")				 
       end)
    
-   LD_MasterFrame.NPC2B = LD_ButtonFrame ( 5, 160, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
+   LD_MasterFrame.NPC2B = LD_ButtonFrame ( 5, 220, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
    LD_MasterFrame.NPC2B:SetScript("OnClick", function ()
       if UnitName("target") == nil then
 	     return
@@ -80,7 +79,7 @@ if not AIO.AddAddon() then
       self:ClearFocus()	  
       end)
    
-   LD_MasterFrame.NPC3B = LD_ButtonFrame ( 5, 110, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
+   LD_MasterFrame.NPC3B = LD_ButtonFrame ( 5, 170, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
    LD_MasterFrame.NPC3B:SetScript("OnClick", function ()
       if UnitName("target") == nil then
 	     return
@@ -107,7 +106,7 @@ if not AIO.AddAddon() then
       self:ClearFocus()	  
       end)
 
-   LD_MasterFrame.NPC4B = LD_ButtonFrame ( 5, 70, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
+   LD_MasterFrame.NPC4B = LD_ButtonFrame ( 5, 130, LD_MasterFrame, "Interface\\ICONS\\ability_druid_flightform" )
    LD_MasterFrame.NPC4B:SetScript("OnClick", function ()
       if UnitName("target") == nil then
 	     return
@@ -133,11 +132,11 @@ if not AIO.AddAddon() then
       self:SetText("")
       self:ClearFocus()	  
       end)
-   LD_MasterFrame.OpenCombat = LD_ButtonFrame ( 5, 20, LD_MasterFrame, "Interface\\ICONS\\ability_warrior_charge" )
+   LD_MasterFrame.OpenCombat = LD_ButtonFrame ( 5, 80, LD_MasterFrame, "Interface\\ICONS\\ability_warrior_charge" )
    LD_MasterFrame.OpenCombat:SetScript("OnEnter", function(self)
       self:SetAlpha(1) 
       GameTooltip:SetOwner(self, "ANCHOR_LEFT");
-      GameTooltip:AddLine("|cff00ffff Abrir combate");
+      GameTooltip:AddLine("|cff00ffff Abrir entrenamiento");
 	  GameTooltip:Show()
 	  end)
    LD_MasterFrame.OpenCombat:SetScript("OnLeave", function(self)
@@ -148,11 +147,11 @@ if not AIO.AddAddon() then
       LDSendMsg("OPCMT#OPCMT")
 	  end)
 	  
-   LD_MasterFrame.CloseCombat = LD_ButtonFrame ( 35, 20, LD_MasterFrame, "Interface\\ICONS\\ability_seal" )
+   LD_MasterFrame.CloseCombat = LD_ButtonFrame ( 35, 80, LD_MasterFrame, "Interface\\ICONS\\ability_seal" )
    LD_MasterFrame.CloseCombat:SetScript("OnEnter", function(self)
       self:SetAlpha(1) 
       GameTooltip:SetOwner(self, "ANCHOR_LEFT");
-      GameTooltip:AddLine("|cff00ffff Cerrar combate");
+      GameTooltip:AddLine("|cff00ffff Cerrar entrenamiento");
 	  GameTooltip:Show()
 	  end)
    LD_MasterFrame.CloseCombat:SetScript("OnLeave", function(self)
@@ -163,7 +162,7 @@ if not AIO.AddAddon() then
       LDSendMsg("CLCMT#CLCMT")
 	  end)
 	  
-   LD_MasterFrame.FoeList = LD_ButtonFrame ( 65, 20, LD_MasterFrame, "Interface\\ICONS\\ability_warrior_rampage" )
+   LD_MasterFrame.FoeList = LD_ButtonFrame ( 65, 80, LD_MasterFrame, "Interface\\ICONS\\ability_warrior_rampage" )
    LD_MasterFrame.FoeList:SetScript("OnEnter", function(self)
       self:SetAlpha(1) 
       GameTooltip:SetOwner(self, "ANCHOR_LEFT");
@@ -178,7 +177,7 @@ if not AIO.AddAddon() then
       print("Calma campeón, que todavia me quedan cosas por hacer")
 	  end)
 	  
-   LD_MasterFrame.Iniciativa = LD_ButtonFrame ( 95, 20, LD_MasterFrame, "Interface\\ICONS\\ability_rogue_sprint" )
+   LD_MasterFrame.Iniciativa = LD_ButtonFrame ( 95, 80, LD_MasterFrame, "Interface\\ICONS\\ability_rogue_sprint" )
    LD_MasterFrame.Iniciativa:SetScript("OnEnter", function(self)
       self:SetAlpha(1) 
       GameTooltip:SetOwner(self, "ANCHOR_LEFT");
@@ -193,6 +192,29 @@ if not AIO.AddAddon() then
       print("Calma campeón, que todavia me quedan cosas por hacer")
 	  end)
 	  
+   LD_MasterFrame.PJ1B = LD_ButtonFrame ( 5, 50, LD_MasterFrame, "Interface\\ICONS\\ability_druid_dash" )
+   LD_MasterFrame.PJ1B:SetScript("OnClick", function ()
+      if UnitName("target") == nil then
+         return
+      end
+      LD_MasterFrame.PJ1N:SetText(UnitName("target"))
+      LD_MasterFrame.PJ1G:SetText(UnitGUID("target"))
+   end)
+   LD_MasterFrame.PJ1N = LD_LabelTopColors (30,-230,LD_MasterFrame,"",0,1,0,1)
+   LD_MasterFrame.PJ1G = LD_LabelTopColors (30,-230,LD_MasterFrame,"",0,0,0,0)
+   LD_MasterFrame.PJ1T = LD_EditFrameTrans (LD_MasterFrame, 5, -260, 300, 15, 1, "", false, 0.2)
+   LD_MasterFrame.PJ1T:SetScript("OnEscapePressed", function (self)
+      self:SetText("")
+      self:ClearFocus()	  
+   end)
+   LD_MasterFrame.PJ1T:SetScript("OnEnterPressed", function (self)
+      local MyUnitGUID = LD_MasterFrame.PJ1G:GetText()
+      LDSendMsg("SYSTXTTOPJ#" .. 
+         LD_MasterFrame.PJ1N:GetText() .. 
+         "#" .. LD_MasterFrame.PJ1T:GetText()) 
+      LD_MasterFrame.PJ1T:SetText("")				 
+   end)
+
 	  
 
    LD_MasterFrame:Hide()	  

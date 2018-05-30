@@ -194,10 +194,12 @@ if not AIO.AddAddon() then
       local MyFrame = CreateFrame ( "Button", "LD_F" .. tostring(Xoff) .. tostring(Yoff), PFrame )
 	  MyFrame:SetSize(20,20)
 	  MyFrame:SetAlpha(0.5)
-	  local MyT = MyFrame:CreateTexture(nil,"BACKGROUND",nil,-6)
-      MyT:SetTexture(Icon)
-      MyT:SetTexCoord(0.1,0.9,0.1,0.9) --cut out crappy icon border
-      MyT:SetAllPoints(MyFrame) --make texture sa
+	  MyFrame.MyT = MyFrame:CreateTexture(nil,"BACKGROUND",nil,-6)
+	  if Icon ~= nil then
+         MyFrame.MyT:SetTexture(Icon)
+	  end	 
+      MyFrame.MyT:SetTexCoord(0.1,0.9,0.1,0.9) --cut out crappy icon border
+      MyFrame.MyT:SetAllPoints(MyFrame) --make texture sa
 	  MyFrame:SetPoint ( "BOTTOMLEFT", Xoff, Yoff )
 	  return MyFrame
    end
@@ -519,6 +521,10 @@ else
    function LD_Dice (Min, Max)
       local r = math.random(Min,Max)
 	  return r
+   end
+   
+   function LD_Now()
+      return (os.date("%Y") .. os.date("%m") .. os.date("%d") .. os.date("%H") .. os.date("%M") .. os.date("%S"))
    end
    
    PrintInfo("LD Libraries loaded") 

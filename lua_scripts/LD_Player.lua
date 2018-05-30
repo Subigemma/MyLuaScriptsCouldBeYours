@@ -20,6 +20,8 @@ if not AIO.AddAddon() then
    --
    SLD_Player.WName = GetUnitName("player")  -- Nombre Wow del pj
    SLD_Player.Account = ""                   -- Cuenta
+   SLD_Player.IsOnrol = false                -- Indica si el jugador está en modo rol
+   SLD_Player.InCombat = false               -- Indica si el jugador está combatiendo o entrenando
    
    SLD_Player.Atributos = {}                 -- ATRIBUTOS
    SLD_Player.Atributos.FUERZA = 0           -- Fuerza física
@@ -30,6 +32,24 @@ if not AIO.AddAddon() then
    SLD_Player.Atributos.SABIDU = 0           -- Voluntad
    SLD_Player.Atributos.PERCEP = 0           -- Percepción
    
+   SLD_Player.Estorbos = {}                 -- ESTORBOS
+   SLD_Player.Estorbos.FUERZA = 0           
+   SLD_Player.Estorbos.CONSTI = 0           
+   SLD_Player.Estorbos.DESTRE = 0           
+   SLD_Player.Estorbos.AGILID = 0           
+   SLD_Player.Estorbos.INTELE = 0           
+   SLD_Player.Estorbos.SABIDU = 0           
+   SLD_Player.Estorbos.PERCEP = 0           
+   
+   SLD_Player.Bonificaciones = {}           -- BONIFICACIONES
+   SLD_Player.Bonificaciones.FUERZA = 0     
+   SLD_Player.Bonificaciones.CONSTI = 0     
+   SLD_Player.Bonificaciones.DESTRE = 0     
+   SLD_Player.Bonificaciones.AGILID = 0     
+   SLD_Player.Bonificaciones.INTELE = 0     
+   SLD_Player.Bonificaciones.SABIDU = 0     
+   SLD_Player.Bonificaciones.PERCEP = 0     
+   
    --
    -- VARIABLES DE ROL (Marco LD_AttrFrame)
    --
@@ -39,17 +59,35 @@ if not AIO.AddAddon() then
    SLD_Player.Hist1 = ""                     -- Historia
    SLD_Player.Hist2 = ""                     -- Aspecto fisico
    SLD_Player.Edad = 0                       -- Edad
-
+   
    --
-   -- CUADRO DE DADOS/EMOTES (Marco LD_RolFrame)
+   -- CUADRO DE DADOS/EMOTES (Marco LD_ROLFrame)
    --
    SLD_Player.Dice1Min = 1                   -- Valor minimo de dados guardado (1)
    SLD_Player.Dice1Max = 10                  -- Valor maximo de dados guardado (1)
    SLD_Player.Dice2Min = 1                   -- Valor minimo de dados guardado (2)
-   SLD_Player.Dice2Max = 0                   -- Valor maximo de dados guardado (2)
+   SLD_Player.Dice2Max = 6                   -- Valor maximo de dados guardado (2)
    SLD_Player.Say1 = ""                      -- Texto guardado(1)                       
    SLD_Player.Say2 = ""                      -- Texto guardado(2)                       
    SLD_Player.Say3 = ""                      -- Texto guardado(3)                       
+
+   --
+   -- Niveles de variables vitales (LD_StatusBars)
+   --
+   SLD_Player.MANA = -1                       -- Nivel de Mana (energia intelectual)
+   SLD_Player.ENER = -1                       -- Nivel de energia fisica
+   SLD_Player.VIDA = -1                       -- Nivel de salud
+   SLD_Player.TopMANA = -1                    -- Nivel máximo de Mana
+   SLD_Player.TopENER = -1                    -- Nivel máximo de energia fisica
+   SLD_Player.TopVIDA = -1                    -- Nivel máximo de salud
+   
+   
+   --
+   -- HABILIDADES
+   --
+   SLD_Player.Habilidades = {}
+   -- SLD_Player.Habilidades["Combate sin armas"].Descrip
+   -- SLD_Player.Habilidades["Combate sin armas"].FunctionType
    
    --
    -- Metodos
@@ -59,7 +97,7 @@ if not AIO.AddAddon() then
    end
    
    function SLD_Player:GetAttributes(Data)   -- Distribucion de atributos desde mensaje del server
-      local sHEAD, sPLAYER, sFUERZA, sCONSTI, sDESTRE, sAGILID, sINTELE, sSABIDU, sPERCEP = strsplit ( "#", Data )
+      local sHEAD, sPLAYER, sFUERZA, sCONSTI, sDESTRE, sAGILID, sINTELE, sSABIDU, sPERCEP, sVIDA, sMANA, sENER = strsplit ( "#", Data )
       SLD_Player.Atributos.FUERZA = tonumber(sFUERZA)
       SLD_Player.Atributos.CONSTI = tonumber(sCONSTI)
       SLD_Player.Atributos.DESTRE = tonumber(sDESTRE)
@@ -67,6 +105,19 @@ if not AIO.AddAddon() then
       SLD_Player.Atributos.INTELE = tonumber(sINTELE)
       SLD_Player.Atributos.SABIDU = tonumber(sSABIDU)
       SLD_Player.Atributos.PERCEP = tonumber(sPERCEP)
+      SLD_Player.VIDA = tonumber(sVIDA)
+      SLD_Player.MANA = tonumber(sMANA)
+      SLD_Player.ENER = tonumber(sENER)
+	  SLD_Player.TopVIDA = (SLD_Player.Atributos.CONSTI * 1.7 ) + (SLD_Player.Atributos.SABIDU * 1.3 )
+      SLD_Player.TopVIDA = SLD_Player.TopVIDA * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVHP"]
+	  SLD_Player.TopENER = (SLD_Player.Atributos.CONSTI * 1.4) + 
+                        (SLD_Player.Atributos.AGILID * 1.2 ) +
+                        (SLD_Player.Atributos.SABIDU * 1.2 ) +
+                        (SLD_Player.Atributos.FUERZA * 1.2 ) 
+      SLD_Player.TopENER = SLD_Player.TopENER * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVEP"]
+	  SLD_Player.TopMANA = (SLD_Player.Atributos.SABIDU * 1.7 ) + 
+                        (SLD_Player.Atributos.INTELE * 1.3 ) 
+      SLD_Player.TopMANA = SLD_Player.TopMANA * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVMP"]
 	  LD_ServerDebug ("SLD_Player:GetAttributes Done ...")
    end	  
 
@@ -83,7 +134,8 @@ if not AIO.AddAddon() then
    end
    
    function SLD_Player:GetDiceVars(Data)   -- Distribucion de variables guardadas dados/emotes mensaje del server
-      local sDice1Min, sDice1Max, sDice2Min, sDice2Max, Say1, Say2, Say3 = strsplit ( "#", Data )
+      local sHEAD, sPLAYER, sDice1Min, sDice1Max, sDice2Min, sDice2Max, Say1, Say2, Say3 = strsplit ( "#", Data )
+	  -- LD_ServerDebug ("SLD_Player:GetDiceVars [" .. Data .. "]")
       SLD_Player.Dice1Min = tonumber(sDice1Min)
       SLD_Player.Dice1Max = tonumber(sDice1Max)
       SLD_Player.Dice2Min = tonumber(sDice2Min)
@@ -93,7 +145,11 @@ if not AIO.AddAddon() then
       SLD_Player.Say3 = Say3
 	  LD_ServerDebug ("SLD_Player:GetDiceVars Done ...")
    end
-   
+
+   function SLD_Player:SetPjVar(MyType, MyIndex, MyValue, IsNumeric) -- Guarda Variable en base de datos
+      LDSendMsg("SAVEPJVAR#" .. SLD_Player.WName .. "#" .. MyType .. "#" .. MyIndex .. 
+	            "#" .. MyValue .. "#" .. tostring(IsNumeric) .. "#")
+   end
    LD_ServerDebug ("SLD Player (Client) Loaded ...")
 
 else
@@ -102,7 +158,7 @@ else
       local RetStr = "SETALLATTR#" .. PlayerName
       local WhereClause = ""
       local MySQLQuery = "SELECT LD_VALUE from LD_SessionVars where LD_PJ = '" .. PlayerName .."'"
-      local MyAttributes = { "FUERZA", "CONSTI", "DESTRE", "AGILID", "INTELE", "SABIDU", "PERCEP" }
+      local MyAttributes = { "FUERZA", "CONSTI", "DESTRE", "AGILID", "INTELE", "SABIDU", "PERCEP", "VIDA", "MANA", "ENER" }
       local MyVal = nil
 	  for MyIndex in pairs(MyAttributes)
 	  do
@@ -115,7 +171,7 @@ else
                MyRes:NextRow()
             end
 		 else
-		    MyVal = "0"
+		    MyVal = "-1"
          end
 	     RetStr = RetStr .. "#" .. MyVal
 	  end
@@ -185,6 +241,22 @@ else
 	  end
       return RetStr	  
    end
-   
+
+   function SLD_Player:SetPjVar(PlayerName, MyType, MyIndex, MyValue, IsNumeric)
+      if MyValue == nil then
+	     MyValue = ""
+	  end
+	  local MyDate = LD_Now()
+	  if IsNumeric == "true" then
+         MySQLCommand= "INSERT INTO LD_SessionVars (LD_PJ, LD_INDEX, LD_VALUE, LD_TYPE, LD_DATEUP) VALUES('" .. PlayerName .. "','" .. MyIndex .. "', " .. MyValue .. ",'" .. MyType .. 
+		 "', " .. MyDate .. ") ON DUPLICATE KEY UPDATE LD_VALUE = " .. MyValue .. ";"
+	  else
+         MySQLCommand= "INSERT INTO LD_SessionVars (LD_PJ, LD_INDEX, LD_VALUE, LD_TYPE, LD_DATEUP) VALUES('" .. PlayerName .. "','" .. MyIndex .. "','" .. MyValue .. "','" .. MyType .. 
+		 "', " .. MyDate .. ") ON DUPLICATE KEY UPDATE LD_VALUE = '" .. MyValue .. "';"
+	  end
+	  -- PrintInfo(MySQLCommand)
+      CharDBExecute(MySQLCommand)		 
+   end
+    
    PrintInfo("SLD Player (Server) Loaded ...")
 end
