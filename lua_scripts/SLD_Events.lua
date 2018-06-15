@@ -59,6 +59,9 @@ if not AIO.AddAddon() then
 		 if not SLD_Player.IsOnrol then
 		    return
 		 end
+		 if SLD_Player.InCombat then
+		    return
+		 end
 	     if SLD_Player.TopENER > SLD_Player.ENER then
 		    SLD_Player.ENER = SLD_Player.ENER + 0.5
 			LD_RefreshBars()

@@ -22,6 +22,8 @@ if not AIO.AddAddon() then
    SLD_Player.Account = ""                   -- Cuenta
    SLD_Player.IsOnrol = false                -- Indica si el jugador está en modo rol
    SLD_Player.InCombat = false               -- Indica si el jugador está combatiendo o entrenando
+   SLD_Player.PendingMsg = 0                 -- Indica si el jugador tiene algun mensaje pendiente de respuesta
+   SLD_Player.LastAttack = 0                 -- Valor del resultado del último ataque
    
    SLD_Player.Atributos = {}                 -- ATRIBUTOS
    SLD_Player.Atributos.FUERZA = 0           -- Fuerza física
@@ -85,6 +87,7 @@ if not AIO.AddAddon() then
    --
    -- HABILIDADES
    --
+   SLD_BlockTurn = false
    SLD_Player.Habilidades = {}
    -- SLD_Player.Habilidades["Combate sin armas"].Descrip
    -- SLD_Player.Habilidades["Combate sin armas"].FunctionType

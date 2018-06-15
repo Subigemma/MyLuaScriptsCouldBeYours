@@ -46,7 +46,66 @@ function SLD_Hability:New ( msg )
    MyHability.OnlyDef,         -- 24/25
    MyHability.Icono = strsplit ( "#", tostring(msg) )
    return MyHability
-end		
+end	
+
+function SLD_Hability:ShowAllHabilities ()
+   for i = 0,19
+   do
+      if SLD_HabilityFrame.HabID[i+1] ~= 0 then
+	     SLD_HabilityFrame.Buttons[i+1]:Show()
+	  end
+   end
+end	
+
+function SLD_Hability:ShowAttackHabilities ()
+   for i = 0,19
+   do
+      if SLD_HabilityFrame.HabID[i+1] ~= 0 then
+	     local MyHabName = SLD_HabilityFrame.HabName[i+1]
+		 local TotalMatch = SLD_Player.Habilidades[MyHabName].Ata_FUERZA +
+		                    SLD_Player.Habilidades[MyHabName].Ata_DESTRE +
+		                    SLD_Player.Habilidades[MyHabName].Ata_AGILID +
+		                    SLD_Player.Habilidades[MyHabName].Ata_INTELE +
+		                    SLD_Player.Habilidades[MyHabName].Ata_CONSTI +
+		                    SLD_Player.Habilidades[MyHabName].Ata_SABIDU +
+		                    SLD_Player.Habilidades[MyHabName].Ata_PERCEP 
+		 LD_ServerDebug ("SLD_Hability:ShowAttackHabilities#" .. MyHabName .. "#" ..
+		    tostring(SLD_Player.Habilidades[MyHabName].Ata_FUERZA) .. "#" ..
+		    tostring(SLD_Player.Habilidades[MyHabName].Ata_DESTRE) .. "#" ..
+		    tostring(SLD_Player.Habilidades[MyHabName].Ata_AGILID) .. "#" ..
+		    tostring(SLD_Player.Habilidades[MyHabName].Ata_INTELE) .. "#" ..
+		    tostring(SLD_Player.Habilidades[MyHabName].Ata_CONSTI) .. "#" ..
+		    tostring(SLD_Player.Habilidades[MyHabName].Ata_SABIDU) .. "#" ..
+		    tostring(SLD_Player.Habilidades[MyHabName].Ata_PERCEP) .. "#" )
+		 
+		 
+		 if (TotalMatch == 0 )then
+	        SLD_HabilityFrame.Buttons[i+1]:Hide()
+			LD_ServerDebug ("SLD_Hability:ShowAttackHabilities#" .. MyHabName .. "# Hidding?")
+         end
+	  end
+   end
+end	
+
+function SLD_Hability:ShowDefenseHabilities ()
+   for i = 0,19
+   do
+      if SLD_HabilityFrame.HabID[i+1] ~= 0 then
+	     local MyHabName = SLD_HabilityFrame.HabName[i+1]
+		 local TotalMatch = SLD_Player.Habilidades[MyHabName].Def_FUERZA +
+		                    SLD_Player.Habilidades[MyHabName].Def_DESTRE +
+		                    SLD_Player.Habilidades[MyHabName].Def_AGILID +
+		                    SLD_Player.Habilidades[MyHabName].Def_INTELE +
+		                    SLD_Player.Habilidades[MyHabName].Def_CONSTI +
+		                    SLD_Player.Habilidades[MyHabName].Def_SABIDU +
+		                    SLD_Player.Habilidades[MyHabName].Def_PERCEP 
+		 
+		 if (TotalMatch == 0 )then
+	        SLD_HabilityFrame.Buttons[i+1]:Hide()
+         end
+	  end
+   end
+end	
 
 SLD_Hability.FunctionTypes = { ["Basic"] = 
 function (Hability)
@@ -63,23 +122,46 @@ function (Hability)
      LDSendMsg ( "PRTXT#SYSTEM#|cffff0000[LD]" .. UnitName("player") .. " no dispone de suficiente energia para la habilidad seleccionada" )
 	 return
    end
-   local Result = Hability.Leveau + 
-   Hability.Ata_FUERZA * ( SLD_Player.Atributos.FUERZA - SLD_Player.Estorbos.FUERZA + SLD_Player.Bonificaciones.FUERZA ) +
-   Hability.Ata_DESTRE * ( SLD_Player.Atributos.DESTRE - SLD_Player.Estorbos.DESTRE + SLD_Player.Bonificaciones.DESTRE ) +
-   Hability.Ata_AGILID * ( SLD_Player.Atributos.AGILID - SLD_Player.Estorbos.AGILID + SLD_Player.Bonificaciones.AGILID ) +
-   Hability.Ata_INTELE * ( SLD_Player.Atributos.INTELE - SLD_Player.Estorbos.INTELE + SLD_Player.Bonificaciones.INTELE ) +
-   Hability.Ata_CONSTI * ( SLD_Player.Atributos.CONSTI - SLD_Player.Estorbos.CONSTI + SLD_Player.Bonificaciones.CONSTI ) +
-   Hability.Ata_SABIDU * ( SLD_Player.Atributos.SABIDU - SLD_Player.Estorbos.SABIDU + SLD_Player.Bonificaciones.SABIDU ) +
-   Hability.Ata_PERCEP * ( SLD_Player.Atributos.PERCEP - SLD_Player.Estorbos.PERCEP + SLD_Player.Bonificaciones.PERCEP ) 
-   SLD_Player.MANA = SLD_Player.MANA - Hability.Cos_MANA
-   SLD_Player:SetPjVar ( "ATRIBUTO", "MANA", SLD_Player.MANA, true )
-   SLD_Player.ENER = SLD_Player.ENER - Hability.Cos_ENER
-   SLD_Player:SetPjVar ( "ATRIBUTO", "ENER", SLD_Player.ENER, true )
+   local Result = 0
+   if SLD_Player.PendingMsg == 0 then -- Es un ataque
+      Result = Hability.Leveau + 
+      Hability.Ata_FUERZA * ( SLD_Player.Atributos.FUERZA - SLD_Player.Estorbos.FUERZA + SLD_Player.Bonificaciones.FUERZA ) +
+      Hability.Ata_DESTRE * ( SLD_Player.Atributos.DESTRE - SLD_Player.Estorbos.DESTRE + SLD_Player.Bonificaciones.DESTRE ) +
+      Hability.Ata_AGILID * ( SLD_Player.Atributos.AGILID - SLD_Player.Estorbos.AGILID + SLD_Player.Bonificaciones.AGILID ) +
+      Hability.Ata_INTELE * ( SLD_Player.Atributos.INTELE - SLD_Player.Estorbos.INTELE + SLD_Player.Bonificaciones.INTELE ) +
+      Hability.Ata_CONSTI * ( SLD_Player.Atributos.CONSTI - SLD_Player.Estorbos.CONSTI + SLD_Player.Bonificaciones.CONSTI ) +
+      Hability.Ata_SABIDU * ( SLD_Player.Atributos.SABIDU - SLD_Player.Estorbos.SABIDU + SLD_Player.Bonificaciones.SABIDU ) +
+      Hability.Ata_PERCEP * ( SLD_Player.Atributos.PERCEP - SLD_Player.Estorbos.PERCEP + SLD_Player.Bonificaciones.PERCEP ) 
+      SLD_Player.MANA = SLD_Player.MANA - Hability.Cos_MANA
+      SLD_Player:SetPjVar ( "ATRIBUTO", "MANA", SLD_Player.MANA, true )
+      SLD_Player.ENER = SLD_Player.ENER - Hability.Cos_ENER
+      SLD_Player:SetPjVar ( "ATRIBUTO", "ENER", SLD_Player.ENER, true )
+	  LD_ServerDebug( UnitName("player") .. "#Attack" )
+   else -- es una defensa
+      Result = Hability.Leveau + 
+      Hability.Def_FUERZA * ( SLD_Player.Atributos.FUERZA - SLD_Player.Estorbos.FUERZA + SLD_Player.Bonificaciones.FUERZA ) +
+      Hability.Def_DESTRE * ( SLD_Player.Atributos.DESTRE - SLD_Player.Estorbos.DESTRE + SLD_Player.Bonificaciones.DESTRE ) +
+      Hability.Def_AGILID * ( SLD_Player.Atributos.AGILID - SLD_Player.Estorbos.AGILID + SLD_Player.Bonificaciones.AGILID ) +
+      Hability.Def_INTELE * ( SLD_Player.Atributos.INTELE - SLD_Player.Estorbos.INTELE + SLD_Player.Bonificaciones.INTELE ) +
+      Hability.Def_CONSTI * ( SLD_Player.Atributos.CONSTI - SLD_Player.Estorbos.CONSTI + SLD_Player.Bonificaciones.CONSTI ) +
+      Hability.Def_SABIDU * ( SLD_Player.Atributos.SABIDU - SLD_Player.Estorbos.SABIDU + SLD_Player.Bonificaciones.SABIDU ) +
+      Hability.Def_PERCEP * ( SLD_Player.Atributos.PERCEP - SLD_Player.Estorbos.PERCEP + SLD_Player.Bonificaciones.PERCEP ) 
+      SLD_Player.MANA = SLD_Player.MANA - Hability.Cos_MANA
+      SLD_Player:SetPjVar ( "ATRIBUTO", "MANA", SLD_Player.MANA, true )
+      SLD_Player.ENER = SLD_Player.ENER - Hability.Cos_ENER
+      SLD_Player:SetPjVar ( "ATRIBUTO", "ENER", SLD_Player.ENER, true )
+	  LD_ServerDebug( UnitName("player") .. "#Deffend" )
+   end        
    LD_RefreshBars()
+   
+   
    LDSendMsg ( "LAUNCHHAB#_Basic#"  .. "#" .. UnitName("player") .. "#" .. 
                Hability.Nom .. "#" .. 
 			   tostring(Result) .. "#" ..
-			   MyTarget .. "#" .. tostring(SLD_Player.InCombat) .. "#")
+			   MyTarget .. "#" .. tostring(SLD_Player.InCombat) .. "#" .. 
+			   tostring(SLD_Player.PendingMsg) .. "#" .. tostring(SLD_Player.LastAttack))
+   SLD_Player.PendingMsg = 0
+   SLD_Player.LastAttack = 0
 end,
 ["Dificultad"] = 
 function (Hability)
@@ -131,8 +213,10 @@ SLD_HabilityFrame:SetSize(600, 40)
 SLD_HabilityFrame:SetPoint("BOTTOMLEFT", 10, 10)
 SLD_HabilityFrame.Buttons = {}
 SLD_HabilityFrame.HabID = {}
+SLD_HabilityFrame.HabName = {}
 for i = 0,19 do
-   SLD_HabilityFrame.HabID[i+1] = 0
+   SLD_HabilityFrame.HabID[i+1]   = 0
+   SLD_HabilityFrame.HabName[i+1] = ""
 end
 SLD_HabilityFrame:Hide()
 		
@@ -145,6 +229,7 @@ SLD_Hability.FunctionTypes = {
 ["LAUNCHHAB_Basic"] =
 function ( player, msg )
    local LD_Table = mysplit ( msg , "#" )
+   PrintInfo("[INFO]LAUNCHHAB_Basic:" .. msg )
    local LD_Head = LD_Table[1]
    local LD_Body = LD_Table[2]
    local LD_Pj = LD_Table[3]
@@ -152,30 +237,45 @@ function ( player, msg )
    local Parcial    = LD_Table[5]
    local MyTarget   = LD_Table[6]
    local InCombat   = LD_Table[7]
+   local IsDefense   = tonumber(LD_Table[8])
+   local LastAttack  = tonumber(LD_Table[9])
    local Result = tonumber(Parcial) + LD_Dice (1, 6)
    local ResultMin = tonumber(Parcial) + 1
    local ResultMax = tonumber(Parcial) + 6
    local ScannedNPC = nil
    local IsPlayer = GetPlayerByName(MyTarget)
+   local MyPain = 0
    if IsPlayer ~= nil then
-      AIO.Msg():Add("LDMsg","PRTXT#SYSTEM#|cffaaaaff[LD]Esta habilidad de momento solo se puede usar en NPCs"):Send(player)
-	  return
-   end
-   SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00[" .. LD_Pj .. "]|cffffff00 Usa [" .. Habilidad .. "] contra " .. MyTarget)
-   TDefense = LD_Dice (1, 15)
-   if (Result > TDefense) then
-      local MyPain = Result - TDefense + LD_Dice (1, 3)
-      SendMsgGroup(player, "PRTXT#SYSTEM#|cffffaa00" .. MyTarget .. " recibe un daño de " .. tostring(MyPain) .. " HP")
-	  if InCombat == "true" then
-         MySQLCommand= "INSERT INTO LD_SessionVars (LD_PJ, LD_INDEX, LD_VALUE, LD_TYPE, LD_DATEUP) VALUES('" .. LD_Pj .. "','" .. Habilidad .. "', " .. tostring(MyPain) .. ",'HABILIDAD', 0) ON DUPLICATE KEY UPDATE LD_VALUE = LD_VALUE + " .. 
-		 tostring(MyPain) .. ";"	
-         CharDBExecute(MySQLCommand)		 
-		 -- SLD_Player:SetPjVar(LD_Pj, "HABILIDAD", Habilidad, MyPain, "true")
-		 AIO.Msg():Add("LDMsg","PRTXT#SYSTEM#|cffaaaaff[LD]Has ganado " .. tostring(MyPain) .. 
-		   " puntos de habilidad [" .. Habilidad .. "]"):Send(player)
-	  end
+      if IsDefense == 0 then
+         SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00[" .. LD_Pj .. "]|cffffff00 Usa [" .. Habilidad .. "] contra " .. MyTarget)
+	     LD_SendSave ( "TEATACAN#" .. Habilidad .. "#" .. tostring(Result) .. "#" .. LD_Pj, player, IsPlayer)
+	  else
+         SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00[" .. LD_Pj .. "]|cffffff00 Usa [" .. Habilidad .. "] en defensa de " .. MyTarget)
+		 if LastAttack < Result then
+		    SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00[" .. LD_Pj .. "]|cffffff00 Defiende el ataque")
+         else
+		    MyPain = Result - LastAttack + LD_Dice (1, 3)
+		    SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00[" .. LD_Pj .. "]|cffffff00 Recibe un daño de " .. tostring(MyPain) .. " HP")
+		 end
+	     LD_SendDel ( "DOPAIN#" .. tostring(MyPain) .. "#" ,IsDefense, IsPlayer)
+      end	  
    else
-      SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00" .. MyTarget .. " se defiende del ataque")
+      SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00[" .. LD_Pj .. "]|cffffff00 Usa [" .. Habilidad .. "] contra " .. MyTarget)
+      TDefense = LD_Dice (1, 15)
+      if (Result > TDefense) then
+         local MyPain = Result - TDefense + LD_Dice (1, 3)
+         SendMsgGroup(player, "PRTXT#SYSTEM#|cffffaa00" .. MyTarget .. " recibe un daño de " .. tostring(MyPain) .. " HP")
+   	  if InCombat == "true" then
+            MySQLCommand= "INSERT INTO LD_SessionVars (LD_PJ, LD_INDEX, LD_VALUE, LD_TYPE, LD_DATEUP) VALUES('" .. LD_Pj .. "','" .. Habilidad .. "', " .. tostring(MyPain) .. ",'HABILIDAD', 0) ON DUPLICATE KEY UPDATE LD_VALUE = LD_VALUE + " .. 
+   		 tostring(MyPain) .. ";"	
+            CharDBExecute(MySQLCommand)		 
+   		 -- SLD_Player:SetPjVar(LD_Pj, "HABILIDAD", Habilidad, MyPain, "true")
+   		 AIO.Msg():Add("LDMsg","PRTXT#SYSTEM#|cffaaaaff[LD]Has ganado " .. tostring(MyPain) .. 
+   		   " puntos de habilidad [" .. Habilidad .. "]"):Send(player)
+   	  end
+      else
+         SendMsgGroup(player, "PRTXT#SYSTEM#|cff00ff00" .. MyTarget .. " se defiende del ataque")
+      end
    end
    PrintInfo("[INFO]LAUNCHHAB_Basic:" .. LD_Pj .. "#Min:" .. tostring(ResultMin) .. "#Max" .. 
       tostring(ResultMax) .. "#Res:" .. tostring(Result))

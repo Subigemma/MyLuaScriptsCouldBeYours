@@ -297,9 +297,13 @@ function LD_RefreshBars()
       SLD_Player.MANA = SLD_Player.MANA * AIO_LD_CONFIG["SYS"]["SYS"]["SYS"]["MVMP"]
 	  SLD_Player.TopMANA = SLD_Player.MANA
    end
+   
    LD_StatusBars.EPBar:SetValue(SLD_Player.ENER * 3)   
    LD_StatusBars.HPBar:SetValue(SLD_Player.VIDA * 3 )   
-   LD_StatusBars.MPBar:SetValue(SLD_Player.MANA * 3)   
+   LD_StatusBars.MPBar:SetValue(SLD_Player.MANA * 3)
+   SLD_Player:SetPjVar ( "ATRIBUTO", "ENER", SLD_Player.ENER, true)
+   SLD_Player:SetPjVar ( "ATRIBUTO", "VIDA", SLD_Player.VIDA, true)
+   SLD_Player:SetPjVar ( "ATRIBUTO", "MANA", SLD_Player.MANA, true)
 end
 
 LD_StatusBars.HPBar:SetScript("OnEnter", 

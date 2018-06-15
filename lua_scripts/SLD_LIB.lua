@@ -346,7 +346,7 @@ else
 		 end
 	  end
 	  
-      for LoopVar=NumGrPj+1,20 do
+      for LoopVar=NumGrPj+1,19 do
          AIO.Msg():Add("LDMsg", "LDGRM#VOID#" .. 
 		    tostring(LoopVar) .. "#VOID#VOID" ):Send(player)
 	  end
@@ -525,6 +525,32 @@ else
    
    function LD_Now()
       return (os.date("%Y") .. os.date("%m") .. os.date("%d") .. os.date("%H") .. os.date("%M") .. os.date("%S"))
+   end
+   
+   function LD_SendSave ( Message, Sender, Recv )
+      local TimeNow = LD_Now()
+	  local MessID = 0
+      local MySQLCommand1= "INSERT INTO LD_SysMessages (ID, LD_Message, LD_Sender, LD_Recv, LD_TimeStamp) VALUES (NULL, '" .. 
+	     Message .. "', '" .. Sender:GetName() .. "', '" .. Recv:GetName() .. "', " .. TimeNow .. ");"
+	  local MyRes = CharDBQuery(MySQLCommand1)
+      if ( MyRes ~= nil ) then
+         local NumRows = MyRes:GetRowCount()
+	     PrintInfo("LD_SendSave: MessID = " .. tostring(MessID) .. "Rows:" .. NumRows)
+         for i = 1,NumRows do
+            MessID   = MyRes:GetString( 0 )
+			MyRes:NextRow()
+         end
+      end
+      AIO.Msg():Add("LDMsg",Message .. "#" .. Sender:GetName() .. "#" .. Recv:GetName() .. "#" .. tostring(TimeNow)):Send(Recv)
+   end
+   
+   function LD_SendDel ( Message, MyIndex, Recv )
+      if MyIndex == nil then
+	     return
+	  end
+      local MySQLCommand= "DELETE FROM LD_SysMessages WHERE ID  = " .. tostring(MyIndex) .. ";"
+	  CharDBExecute(MySQLCommand)	 
+      AIO.Msg():Add("LDMsg",Message):Send(Recv)
    end
    
    PrintInfo("LD Libraries loaded") 

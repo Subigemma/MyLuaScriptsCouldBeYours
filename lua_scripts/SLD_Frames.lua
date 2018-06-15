@@ -17,17 +17,43 @@ SLD_Frames =
 local SLD_Frames = SLD_Frames
 
 if not AIO.AddAddon() then
-LD_NPC_POOL  = {}
-LD_NPC_INDEX = 1
-LD_NPCsFrame = CreateFrame ( "Frame", "LD_NPCsFrame", UIParent )
-local LD_NPCsFrameBackground = LD_NPCsFrame:CreateTexture("LD_LD_NPCsFrameBackground", "BACKGROUND")
-LD_NPCsFrameBackground:SetTexture(0, 0, 1, 0.1)
-LD_NPCsFrameBackground:SetAllPoints()
-LD_NPCsFrame:SetSize(400, 100)
-LD_NPCsFrame:SetPoint("BOTTOMRIGHT", 0, 100)
-LD_NPCsFrame:SetMovable(true)
-LD_NPCsFrame:EnableMouse(true)
-LD_NPCsFrame:Hide()
+
+--
+-- FRAME DE ENTRADA DE DATOS GENERICO
+--
+LD_DataEntryFrame = CreateFrame ( "Frame", "LD_DataEntryFrame", UIParent )
+local LD_DataEntryFrameBackground = LD_DataEntryFrame:CreateTexture("LD_DataEntryFrame", "BACKGROUND")
+LD_DataEntryFrameBackground:SetTexture(0, 1, 1, 0.2)
+LD_DataEntryFrameBackground:SetAllPoints()
+LD_DataEntryFrame:SetSize(300, 100)
+LD_DataEntryFrame:SetPoint("CENTER")
+LD_DataEntryFrame:SetMovable(true)
+LD_DataEntryFrame:EnableMouse(true)
+LD_DataEntryFrame:SetBackdrop({
+	edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+	edgeSize = 14,
+	insets = {left = 3, right = 3, top = 3, bottom = 3},
+})
+LD_DataEntryFrame.Prompt = LD_LabelTop( 15, -5, LD_DataEntryFrame, "Entrada de datos, texto explicativo, aclaratorio de lo que se quiere y como se quiere")
+LD_DataEntryFrame.Prompt:SetSize (270, 30)
+LD_DataEntryFrame.Prompt:SetWordWrap(true) 
+LD_DataEntryFrame.Prompt:SetJustifyH("LEFT")	
+LD_DataEntryFrame.Data = LD_EditFrame ( LD_DataEntryFrame, 15, -40, 270, 20, 35, "Sitio para editar datos", false)
+LD_DataEntryFrame.OkButton = CreateFrame ( "Button", "LD_DataEntryFrame.OkButton", LD_DataEntryFrame, "UIPanelButtonTemplate" )
+LD_DataEntryFrame.OkButton:SetPoint("BOTTOMLEFT", 15, 5, LD_DataEntryFrame)
+LD_DataEntryFrame.OkButton:SetSize (50, 20)
+LD_DataEntryFrame.OkButton:SetText ("Ok")
+LD_DataEntryFrame.CancelButton = CreateFrame ( "Button", "LD_DataEntryFrame.Cancel", LD_DataEntryFrame, "UIPanelButtonTemplate" )
+LD_DataEntryFrame.CancelButton:SetPoint("BOTTOMRIGHT", -15, 5, LD_DataEntryFrame)
+LD_DataEntryFrame.CancelButton:SetSize (50, 20)
+LD_DataEntryFrame.CancelButton:SetText ("Cancel")
+LD_DataEntryFrame.CancelButton:SetScript ("Onclick", function(self)
+   LD_DataEntryFrame:Hide()
+   end)
+LD_DataEntryFrame:SetScript ("OnShow", function(self)
+   self.Data:SetFocus()
+   end)
+LD_DataEntryFrame:Hide()
 
 --
 -- FRAME DE VENDEDORES DE ATRIBUTO

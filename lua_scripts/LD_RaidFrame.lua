@@ -15,7 +15,7 @@ local SLD_RaidFrame = SLD_RaidFrame
 if not AIO.AddAddon() then
 LD_RaidFrame = CreateFrame ( "Frame", "LD_RaidFrame", UIParent )
 local LD_RaidFrameBackground = LD_RaidFrame:CreateTexture("LD_RaidFrameBackground", "BACKGROUND")
-LD_RaidFrameBackground:SetTexture(0.5, 0.5, 1, 0.1)
+LD_RaidFrameBackground:SetTexture(0.5, 0.5, 1, 0)
 LD_RaidFrameBackground:SetAllPoints()
 LD_RaidFrame:SetSize(150, 400)
 LD_RaidFrame:SetPoint("TOPLEFT", 10, -100)
@@ -38,16 +38,23 @@ LD_RaidFrame.menu = {
      } 
    }
  }
+ 
+--
+-- Creacion de los slots para alojar a los miembros de la RAID (limite:20)
+--
 for LoopVar=1,20 do
    LD_RaidFrame.Slots[LoopVar] = CreateFrame ( "Button", "LD_RaidFrame" .. tostring(LoopVar), UIParent )
    LD_RaidFrame.Slots[LoopVar]:SetPoint("TOPLEFT", LD_RaidFrame , "TOPLEFT", 30, IndexY )
-   LD_RaidFrame.Slots[LoopVar]:SetSize(100, 20)
+   LD_RaidFrame.Slots[LoopVar]:SetSize(50, 20)
    LD_RaidFrame.Slots[LoopVar]:EnableMouse(true)
    LD_RaidFrame.Slots[LoopVar].Background=LD_RaidFrame.Slots[LoopVar]:CreateTexture("LD_SlotsBackground"..tostring(LoopVar), "BACKGROUND")
    LD_RaidFrame.Slots[LoopVar].Background:SetTexture(0.5, 0.5, 1, 0)
    LD_RaidFrame.Slots[LoopVar].Background:SetAllPoints()
-   LD_RaidFrame.Slots[LoopVar].Txt = LD_LabelTopColors (30,IndexY,LD_RaidFrame,"",0,1,0,1)
-   LD_RaidFrame.Slots[LoopVar].Fun = LD_LabelTopColors (0,IndexY,LD_RaidFrame,"",1,1,0,1)
+   LD_RaidFrame.Slots[LoopVar].Txt = LD_LabelTopColors (30,IndexY,LD_RaidFrame,"",0,1,0,1)  -- Nombre de PJ
+   LD_RaidFrame.Slots[LoopVar].Txt:SetJustifyH("LEFT")
+   LD_RaidFrame.Slots[LoopVar].Fun = LD_LabelTopColors (0 ,IndexY,LD_RaidFrame,"",1,1,0,1)   -- Indica Leader/Ayudante etc..
+   LD_RaidFrame.Slots[LoopVar].Ata = LD_LabelTopColors (80,IndexY,LD_RaidFrame,"",1,1,0,1)   -- Indica ataque
+   LD_RaidFrame.Slots[LoopVar].Trn = LD_LabelTopColors (90,IndexY,LD_RaidFrame,"",1,1,0,1)   -- Indica turno
    
    -- LD_RaidFrame.Slots[LoopVar].MenuFrame = CreateFrame("Frame", "MF"..tostring(LoopVar), LD_RaidFrame.Slots[LoopVar], "UIDropDownMenuTemplate")
 
@@ -58,9 +65,8 @@ end
 
 
 --
--- ToolTip de banda
+-- ToolTip de banda, donde se muestra información de descripcion física de los personajes
 --
-
 LD_ToolTip=CreateFrame( "Frame", "LD_ToolTip", UIParent )
 LD_ToolTip:SetPoint("TOPRIGHT", 0,0)
 LD_ToolTip:SetSize(200,300)
@@ -120,6 +126,9 @@ for LoopVar=1,20 do
 end
 LD_FoeFrame:Hide()
 
+--
+-- ABRIR COMBATE
+--
 function OpenCombat()
    LDSendMsg("ROLMD#" .. UnitName("player") .. "#WORLD")
    LD_ROLFrame.AlertZone.TxtAlert:SetText("EN ENTRENAMIENTO")
@@ -128,6 +137,10 @@ function OpenCombat()
    SLD_HabilityFrame:Show()
    SLD_Player.InCombat = true
 end
+
+--
+-- CERRAR COMBATE
+--
 function CloseCombat()
    LD_ROLFrame.AlertZone.TxtAlert:SetText("")
    LD_ROLFrame:Hide()
@@ -136,12 +149,143 @@ function CloseCombat()
    SLD_Player.InCombat = false
 end
 
-
+--
+-- Borra los slots de la RAID
+--
 function LD_ClearRAID ()
    for i=1,20 do
       LD_RaidFrame.Slots[i]:SetText("")
    end	
 end   
+
+--
+-- Actualiza los datos de un PJ en el marco de RAID
+--
+function LD_FillRAIDSlot ( MyPj, MyIndex, MyConn, MyFun )
+  
+   if MyPj == "VOID" then
+      LD_RaidFrame.Slots[MyIndex].Txt:SetText("")
+	  LD_RaidFrame.Slots[MyIndex].Fun:SetText("")
+   else
+      if MyFun == "L" then 
+         LD_RaidFrame.Slots[MyIndex].Fun:SetText("(L)")
+      elseif MyFun == "A" then   
+         LD_RaidFrame.Slots[MyIndex].Fun:SetText("(A)")
+      else
+         LD_RaidFrame.Slots[MyIndex].Fun:SetText("")
+      end  
+      local menu = {
+                  { text = AIO_LD_CONFIG["DATA"][MyPj]["ROL"]["NOMBRE"], isTitle = true},
+                  { text = "Variables vitales", hasArrow = true, 
+				     func = function() LDSendMsg( "SHOWVITALVARS#" .. MyPj .. "#" .. UnitName("player") .. "#SYS" ); end,
+                     menuList = {
+					    { text = "Valor Máximo", hasArrow = true, menuList = {
+                              { text = "Valor Máximo", isTitle = true},
+                              { text = "Energia", func = function() 
+                                 LDSendMsg("SETFULLENER#" .. MyPj .. "#SYS#")
+						      end},
+                              { text = "Maná", func = function() 
+                                 LDSendMsg("SETFULLMANA#" .. MyPj .. "#SYS#")
+						      end},
+                              { text = "Vida", func = function()
+                                 LDSendMsg("SETFULLVIDA#" .. MyPj .. "#SYS#")
+						      end},
+						   },
+						},
+					    { text = "Otros Valores", hasArrow = true, menuList = {
+                              { text = "Otros valores", isTitle = true},
+                              { text = "Energia", func = function() 
+                                 LD_DataEntryFrame.Prompt:SetText("Energia, introducir valor absoluto:")
+								 LD_DataEntryFrame.Data:SetText("")
+								 LD_DataEntryFrame.OkButton:SetScript("OnClick" , 
+								    function(self)
+									   LDSendMsg("MODLDPLAYER#" .. MyPj .. "#SLD_Player.ENER = " .. LD_DataEntryFrame.Data:GetText() .. ";\n LD_RefreshBars();\nprint(\"Tu nivel de energia se ha establecido en " .. LD_DataEntryFrame.Data:GetText() .." EP\");#")
+									   LD_DataEntryFrame:Hide()
+									   end)
+								 LD_DataEntryFrame:Show()
+						      end},
+                              { text = "Maná", func = function() 
+                                 LD_DataEntryFrame.Prompt:SetText("Maná, introducir valor absoluto:")
+								 LD_DataEntryFrame.Data:SetText("")
+								 LD_DataEntryFrame.OkButton:SetScript("OnClick" , 
+								    function(self)
+									   LDSendMsg("MODLDPLAYER#" .. MyPj .. "#SLD_Player.MANA = " .. LD_DataEntryFrame.Data:GetText() .. ";\n LD_RefreshBars();\nprint(\"Tu nivel de maná se ha establecido en " .. LD_DataEntryFrame.Data:GetText() .." MP\");#")
+									   LD_DataEntryFrame:Hide()
+									   end)
+								 LD_DataEntryFrame:Show()
+						      end},
+                              { text = "Vida", func = function()
+                                 LD_DataEntryFrame.Prompt:SetText("Vida, introducir valor absoluto:")
+								 LD_DataEntryFrame.Data:SetText("")
+								 LD_DataEntryFrame.OkButton:SetScript("OnClick" , 
+								    function(self)
+									   LDSendMsg("MODLDPLAYER#" .. MyPj .. "#SLD_Player.VIDA = " .. LD_DataEntryFrame.Data:GetText() .. ";\n LD_RefreshBars();\nprint(\"Tu nivel de salud se ha establecido en " .. LD_DataEntryFrame.Data:GetText() .." HP\");#")
+									   LD_DataEntryFrame:Hide()
+									   end)
+								 LD_DataEntryFrame:Show()
+						      end},
+						   },
+						},
+                     } 
+                  },
+                  { text = "Bloquear/Activar Habilidades", func = function() 
+				     -- LDSendMsg("SETPJAURA#" .. MyPj .. "#468#")
+				     LDSendMsg("SETBLOCKHABILITY#" .. MyPj .. "#468#")
+				  end },
+                  { text = "Estados", hasArrow = true, menuList = 
+				      {
+                        { text = "Añadir", func = function()
+						      end},				     
+                        { text = "Eliminar", func = function()
+						      end},				     
+                     },			
+				  }
+               }
+      local menuFrame = CreateFrame("Frame","RFM" .. tostring(MyIndex),LD_RaidFrame.Slots[MyIndex],"UIDropDownMenuTemplate")
+            menuFrame:SetPoint("Center", LD_RaidFrame.Slots[MyIndex], "Center")
+ 			menuFrame:Hide()
+			
+      LD_RaidFrame.Slots[MyIndex].Txt:SetText(MyPj)
+      LD_RaidFrame.Slots[MyIndex]:SetScript("OnEnter" , 
+         function (self)
+            if AIO_LD_CONFIG["DATA"][MyPj]["ROL"] == nil then
+               return
+            end	 
+            self.Background:SetTexture(0.5, 0.5, 1, 0.7)
+            LD_ToolTip.TxtName:SetText(AIO_LD_CONFIG["DATA"][MyPj]["ROL"]["NOMBRE"] .. 
+               " " .. AIO_LD_CONFIG["DATA"][MyPj]["ROL"]["APELLIDO"])
+            if AIO_LD_CONFIG["DATA"][MyPj]["ROL"]["APP"] == "A" then
+               LD_ToolTip.TxtDesc:SetText(AIO_LD_CONFIG["DATA"][MyPj]["ROL"]["HIST2"])
+            else		 
+               LD_ToolTip.TxtDesc:SetText("(Historia por aprobar)")
+            end	 
+            LD_ToolTip:Show()		 
+         end)		 
+      LD_RaidFrame.Slots[MyIndex]:SetScript("OnLeave" , 
+         function (self)
+            self:SetAlpha(1)
+            self.Background:SetTexture(0.5, 0.5, 1, 0)
+            LD_ToolTip:Hide()		 
+         end)	
+      if (IsRaidLeader() and MyConn ~= "false" ) then
+      LD_RaidFrame.Slots[MyIndex]:SetScript("OnMouseDown", 
+	     function(self, button)
+            if button == "RightButton" then
+               EasyMenu(menu, menuFrame, menuFrame, 0 , 0, "MENU")
+            end
+         end)
+      end
+
+   end
+   if MyConn == "false" then
+      LD_RaidFrame.Slots[MyIndex].Txt:SetTextColor(0.5,0.5,0.5,0.5)
+   else	
+      LD_RaidFrame.Slots[MyIndex].Txt:SetTextColor(0,1,0,1)
+   end
+   if not LD_RaidFrame:IsVisible() then
+      LD_RaidFrame:Show()
+   end   
+end
 
 LD_RaidFrame:Hide()
 

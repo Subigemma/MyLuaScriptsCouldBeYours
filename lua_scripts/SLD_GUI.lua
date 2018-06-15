@@ -12,6 +12,7 @@ local SLD_RolFrame = SLD_RolFrame or require("LD_RolFrame")
 local SLD_MainFrame = SLD_MainFrame or require("LD_MainFrame")
 local SLD_Hability = SLD_Hability or require("LD_Hability")
 local SLD_RaidFrame = SLD_RaidFrame or require("LD_RaidFrame")
+local SLD_System = SLD_System or require("LD_System")
 
 local HandleLDMsg
 
@@ -208,9 +209,54 @@ if AIO.AddAddon() then
 		 local DesPlayer = GetPlayerByName( LD_Table[2] )
 		 AIO.Msg():Add("LDMsg", "SYSTXTTOPJ#" .. LD_Table[2] .. "#" .. LD_Table[3] ):Send(DesPlayer)
 
-	  elseif LD_Head == "LAUNCHHAB" then  -- DADOS DE HABILIDAD TIPO 1
+	  elseif LD_Head == "LAUNCHHAB" then  -- DADOS DE HABILIDAD
 		 SLD_Hability.FunctionTypes[LD_Head .. LD_Body]( player, msg)
 		 
+	  elseif LD_Head == "SETPJAURA" then  -- APLICAR UN AURA A UN PJ
+         LD_Pj = LD_Table[2]
+         local MyPlayer = GetPlayerByName( LD_Pj )
+         if MyPlayer ~= nil then
+            MyPlayer:AddAura(tonumber(LD_Table[3]),MyPlayer)
+         end
+
+	  elseif LD_Head == "SETFULLENER" or 
+	         LD_Head == "SETFULLMANA" or
+			 LD_Head == "SETFULLVIDA" then  -- RESTAURAR VARIABLES VITALES
+		 LD_Pj = LD_Table[2]
+         local MyPlayer = GetPlayerByName( LD_Pj )
+		 if MyPlayer ~= nil then
+		    AIO.Msg():Add("LDMsg", msg ):Send(MyPlayer)
+		 end
+ 	  elseif LD_Head == "SHOWVITALVARS" then  -- CONSULTA DE VARIABLES VITALES
+	     local MyPj   = LD_Table[2]
+		 local SendTo = LD_Table[3]
+         local MyPlayer = GetPlayerByName( MyPj )
+		 if MyPlayer ~= nil then
+		    AIO.Msg():Add("LDMsg", msg ):Send(MyPlayer)
+		 end
+
+      elseif LD_Head == "GETVITALVARS" then  -- CONSULTA DE VARIABLES VITALES
+	     local MyPj   = LD_Table[2]
+		 local SendTo = LD_Table[3]
+		 local MyInfo = LD_Table[4]
+         local MyPlayer = GetPlayerByName( SendTo )
+		 if MyPlayer ~= nil then
+		    AIO.Msg():Add("LDMsg", msg ):Send(MyPlayer)
+		 end
+		 
+	  elseif LD_Head == "MODLDPLAYER" then -- ENVIA CODIGO LUA PARA QUE UN PJ LO EJECUTE
+	     local MyPj   = LD_Table[2]
+         local MyPlayer = GetPlayerByName( MyPj )
+		 if MyPlayer ~= nil then
+		    AIO.Msg():Add("LDMsg", msg ):Send(MyPlayer)
+		 end
+		 
+      --
+	  -- LD Special Protocol
+	  -- Type#Subtype#SEQID#Data
+	  --
+	   elseif LD_Head == "PROTO_LD" then
+	      ProcessSysMsg(player, msg)
       else
          PrintInfo("[INFO]HandleLDMsg:114 Unhandled Message:[" .. msg .."]")
       end
@@ -293,54 +339,9 @@ else
       elseif (LD_Head == "LDNOG") then -- CLEAR RAID
 	     LD_ClearRAID()
 		 LD_RaidFrame:Hide()
-      elseif (LD_Head == "LDGRM") then -- FILL RAID
+      elseif (LD_Head == "LDGRM") then -- FILL RAID Slot
+	     LD_FillRAIDSlot ( LD_AllFlds[2], tonumber(LD_AllFlds[3]), LD_AllFlds[4], LD_AllFlds[5] )
 	     -- LD_ServerDebug ( msg )
-	     local Name = LD_Pj
-		 local Index = tonumber(LD_Body)
-		 local Conn = LD_AllFlds[4]
-		 local Fun  = LD_AllFlds[5]
-		 if Name == "VOID" then
-		    LD_RaidFrame.Slots[Index].Txt:SetText("")
-		 else
-		    if Fun == "L" then 
-			   LD_RaidFrame.Slots[Index].Fun:SetText("(L)")
-			elseif Fun == "A" then   
-			   LD_RaidFrame.Slots[Index].Fun:SetText("(A)")
-			end   
-		    LD_RaidFrame.Slots[Index].Txt:SetText(LD_Pj)
-			LD_RaidFrame.Slots[Index]:SetScript("OnEnter" , 
-			   function (self)
-			      if AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"] == nil then
-				     return
-				  end	 
-				  self.Background:SetTexture(0.5, 0.5, 1, 0.7)
-                  LD_ToolTip.TxtName:SetText(AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["NOMBRE"] .. 
-				     " " .. AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["APELLIDO"])
-				  if AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["APP"] == "A" then
-                     LD_ToolTip.TxtDesc:SetText(AIO_LD_CONFIG["DATA"][LD_Pj]["ROL"]["HIST2"])
-			      else		 
-                     LD_ToolTip.TxtDesc:SetText("(Historia por aprobar)")
-				  end	 
-                  LD_ToolTip:Show()		 
-               end)		 
-			LD_RaidFrame.Slots[Index]:SetScript("OnLeave" , 
-			   function (self)
-			      self:SetAlpha(1)
-				  self.Background:SetTexture(0.5, 0.5, 1, 0)
-                  LD_ToolTip:Hide()		 
-               end)		 
-         end
-		 if Conn == "false" then
-		    LD_RaidFrame.Slots[Index].Txt:SetTextColor(0.5,0.5,0.5,0.5)
-		 else	
-		    LD_RaidFrame.Slots[Index].Txt:SetTextColor(0,1,0,1)
-			LD_RaidFrame.Slots[Index]:SetScript("OnClick", function(self, button, down)
-                   -- EasyMenu(LD_RaidFrame.menu, self, self, 0 , 0, "MENU");
-            end)
-		 end
- 		 if not LD_RaidFrame:IsVisible() then
-            LD_RaidFrame:Show()
-         end   
       elseif (LD_Head == "PVEMD") then -- MODO PVE
          SLD_Player.IsOnrol = false
 
@@ -537,7 +538,7 @@ else
 			LD_AllFlds[3] == "Poveda Cuatroojos" or
 			LD_AllFlds[3] == "Poveda Empollonum" or
 			LD_AllFlds[3] == "Noremasti Todoinmune" then
-            if AIO_LD_CONFIG["ROLMODE"] ~= true then
+            if SLD_Player.IsOnrol ~= true then
                message("Debes estar en modo rol para comerciar aqui")
             return
             end	
@@ -625,6 +626,7 @@ else
 		 for i = 0,19 do
 		    if SLD_HabilityFrame.HabID[i+1] == 0 then
 			   SLD_HabilityFrame.HabID[i+1] = SLD_Player.Habilidades[LD_AllFlds[2]].ID
+			   SLD_HabilityFrame.HabName[i+1] = LD_AllFlds[2]
 			   SLD_HabilityFrame.Buttons[i+1] = LD_ButtonFrame ( 10+(i*30), 10, SLD_HabilityFrame,"Interface\\ICONS\\" .. SLD_Player.Habilidades[LD_AllFlds[2]].Icono)
 			   SLD_HabilityFrame.Buttons[i+1]:SetScript( "OnEnter" , 
 			      function(self) 
@@ -644,13 +646,59 @@ else
 				     local MyIndex = SLD_Player.Habilidades[LD_AllFlds[2]].FunctionType
 					 local MyHability = SLD_Player.Habilidades[LD_AllFlds[2]]
 				     SLD_Hability.FunctionTypes[MyIndex](MyHability)
+					 SLD_Hability:ShowAllHabilities ()
 				  end)
 			   return
 			end
          end
-      elseif LD_Head == "PJONATACK" then -- PJ EN ATAQUE
+      
+	  elseif LD_Head == "SETFULLENER" then
+	     SLD_Player.ENER = SLD_Player.TopENER
+		 LD_RefreshBars()
+		 
+	  elseif LD_Head == "SETFULLMANA" then
+	     SLD_Player.MANA = SLD_Player.TopMANA
+		 LD_RefreshBars()
+		 
+	  elseif LD_Head == "SETFULLVIDA" then  -- RESTAURAR VARIABLES VITALES
+	     SLD_Player.VIDA = SLD_Player.TopVIDA
+		 LD_RefreshBars()
+
+	  elseif LD_Head == "SHOWVITALVARS" then  -- CONSULTA DE VARIABLES VITALES
+	     local MyPj   = LD_AllFlds[2]
+		 local SendTo = LD_AllFlds[3]
+	     local MyMSG  = MyPj .. " variables vitales:\n" ..
+		                "Vida:" .. tostring (SLD_Player.VIDA) .. "(Max:" .. tostring (SLD_Player.TopVIDA) .. ")\n" ..
+	                    "Maná:" .. tostring (SLD_Player.MANA) .. "(Max:" .. tostring (SLD_Player.TopMANA) .. ")\n" ..
+	                    "Ene.:" .. tostring (SLD_Player.ENER) .. "(Max:" .. tostring (SLD_Player.TopENER) .. ")\n"
+		 LDSendMsg ( "GETVITALVARS#" .. MyPj .. "#" .. SendTo .. "#" .. MyMSG )
 	  
-	  else
+	  elseif LD_Head == "GETVITALVARS" then  -- CONSULTA DE VARIABLES VITALES
+	     print (LD_AllFlds[4])
+		 
+	  elseif LD_Head == "MODLDPLAYER" then -- EJECUTA CODIGO LUA DEFINIDO EN 'Item'
+	     local MyPj   = LD_AllFlds[2]
+		 local Item   = LD_AllFlds[3]
+         local MyEval = loadstring(	Item )
+         MyEval()		
+
+	  elseif LD_Head == "TEATACAN" then -- PJ ES ATACADO
+	     LD_ServerDebug(msg)
+	     local LD_Habilidad = LD_AllFlds[2]
+	     local LD_Result = LD_AllFlds[3]
+		 local LD_Foe = LD_AllFlds[4]
+		 local LD_TimeStamp = LD_AllFlds[7]
+		 LDSendMsg("ROLMD#" .. UnitName("player") .. "#WORLD")
+		 LD_ROLFrame:Show()
+         SLD_HabilityFrame:Show()
+         
+		 SLD_Player.PendingMsg = tonumber(LD_AllFlds[5])
+		 SLD_Player.LastAttack = tonumber(LD_Result)
+		 SLD_Hability:ShowDefenseHabilities ()
+	     -- PRTXT#SYSTEM#|cff00ff00[" .. LD_Body .. "]
+         StaticPopup_Show("MEATACAN")
+
+	 else
 	     LD_ServerDebug ("Client, unhandled message: " .. msg )
       end
    end     	  

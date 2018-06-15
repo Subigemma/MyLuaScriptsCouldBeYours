@@ -179,6 +179,25 @@ StaticPopupDialogs["CONFIRM_HISTORY"] = {
   hideOnEscape = true,
   preferredIndex = 3 }  
 
+StaticPopupDialogs["MEATACAN"] = {
+  text = "Te estan atacando, usa alguna de las habilidades de defensa o bien pulsa 'Ok' para usar la de defecto (1d15)",
+  button1 = "Ok",
+  button2 = "Huyes cobardemente",
+  OnAccept = function()
+     SysPrint ( "Has enviado tu defensa") 
+     local MyRes = rand(1,15)
+     SLD_Hability:ShowAllHabilities ()	 
+  end,
+  OnCancel = function()
+     SysPrint ( "Has rechazado el combate (Cobarde)")  
+	 SLD_Hability:ShowAllHabilities ()
+  end,
+  timeout = 120,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3 }  
+  
+  
 LD_AttrTutor = CreateFrame ( "Frame", "LD_AttrTutor", UIParent )
 LD_AttrTutor:SetSize(520, 500)
 LD_AttrTutor:SetPoint("TOPLEFT", 10, -130)
